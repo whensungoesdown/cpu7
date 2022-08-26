@@ -27,3 +27,5 @@ testbranch:
     addi.w t1, t1, 0x10
     addi.w t1, t1, 0x10
     addi.w t1, t1, 0x10
+
+    addi.w $r5, $r0, 0x5a
