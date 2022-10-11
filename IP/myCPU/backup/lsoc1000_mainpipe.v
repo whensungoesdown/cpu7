@@ -901,7 +901,7 @@ assign data_scsucceed  = dcache2pipeline_bus[`DCACHE2PIPELINE_BUS_SCSUCCEED];
 //);
 
 //gs232c_front gs232c_front(
-cpu7_ifu_fdp cpu7_ifu(
+cpu7_ifu_fdp cpu7_ifu_fdp(
     .clock           (clk                     ),
     .reset           (~resetn                 ),   
     // .br_endline      (1'b0                    ),

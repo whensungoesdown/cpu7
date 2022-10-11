@@ -298,7 +298,9 @@ module mycpu_top (
     wire [3              :0] d_ex_req_dirqid;
     wire                     d_ex_req_recv  ;
 
-    lsoc1000_mainpipe cpu(
+   // uty: test
+   cpu7 cpu(
+//    lsoc1000_mainpipe cpu(
         .clk              (aclk                 ),
         .resetn           (aresetn              ),
         .intrpt						(intrpt		            ),

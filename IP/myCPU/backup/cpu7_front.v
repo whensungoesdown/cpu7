@@ -1,4 +1,4 @@
-module cpu7_ifu_fdp(
+module cpu7_ifu_fdp__unused(
     input  wire         clock          ,
     input  wire         reset          ,
     input  wire [31 :0] pc_init        ,

@@ -29,7 +29,7 @@
 `define NO_SCAN 
 `endif
 
-`timescale 1ps / 1ps
+//`timescale 1ps / 1ps
 
 // POSITVE-EDGE TRIGGERED FLOP with SCAN
 module dff_s (din, clk, q, se, si, so);
