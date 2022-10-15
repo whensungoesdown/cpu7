@@ -72,19 +72,24 @@ module cpu7(
     output  [`GRLEN-1:0]   debug1_wb_rf_wdata
 );
 
-   wire                              port0_valid;
-   wire [31:0]                       port0_inst;
-   wire [`GRLEN-1:0]                 port0_pc;
-   wire [`LSOC1K_DECODE_RES_BIT-1:0] port0_op;     
-   wire                              port0_exception;
-   wire [5:0]                        port0_exccode;
-   wire [`GRLEN-3:0]                 port0_br_target;
-   wire                              port0_br_taken;
-   wire                              port0_rf_wen;     
-   wire [4:0]                        port0_rf_target;
-   wire [`LSOC1K_PRU_HINT:0]         port0_hint;       
+   wire                              ifu_exu_valid;
+   wire [31:0]                       ifu_exu_inst;
+   wire [`GRLEN-1:0]                 ifu_exu_pc;
+   wire [`LSOC1K_DECODE_RES_BIT-1:0] ifu_exu_op;     
+   wire                              ifu_exu_exception;
+   wire [5:0]                        ifu_exu_exccode;
+   wire [`GRLEN-3:0]                 ifu_exu_br_target;
+   wire                              ifu_exu_br_taken;
+   wire                              ifu_exu_rf_wen;     
+   wire [4:0]                        ifu_exu_rf_target;
+   wire [`LSOC1K_PRU_HINT:0]         ifu_exu_hint;       
 
+   wire [31:0]                       ifu_exu_imm_shifted;
+   wire [`GRLEN-1:0]                 ifu_exu_c_d;
 
+   wire [`GRLEN-1:0]                 ifu_exu_pc_w;
+
+      
    cpu7_ifu ifu(
       .clock                   (clk                ),
       .resetn                  (resetn             ),
@@ -106,34 +111,43 @@ module cpu7(
       .exu_ifu_br_target       (31'b0              ),
 
       // now only have one port
-      .port0_valid             (port0_valid        ),
-      .port0_inst              (port0_inst         ),
-      .port0_pc                (port0_pc           ),
-      .port0_op                (port0_op           ),
-      .port0_exception         (port0_exception    ),
-      .port0_exccode           (port0_exccode      ),
-      .port0_br_target         (port0_br_target    ),
-      .port0_br_taken          (port0_br_taken     ),
-      .port0_rf_wen            (port0_rf_wen       ),
-      .port0_rf_target         (port0_rf_target    ),
-      .port0_hint              (port0_hint         )
+      .ifu_exu_valid           (ifu_exu_valid        ),
+      .ifu_exu_inst            (ifu_exu_inst         ),
+      .ifu_exu_pc              (ifu_exu_pc           ),
+      .ifu_exu_op              (ifu_exu_op           ),
+      .ifu_exu_exception       (ifu_exu_exception    ),
+      .ifu_exu_exccode         (ifu_exu_exccode      ),
+      .ifu_exu_br_target       (ifu_exu_br_target    ),
+      .ifu_exu_br_taken        (ifu_exu_br_taken     ),
+      .ifu_exu_rf_wen          (ifu_exu_rf_wen       ),
+      .ifu_exu_rf_target       (ifu_exu_rf_target    ),
+      .ifu_exu_hint            (ifu_exu_hint         ),
+
+      .ifu_exu_imm_shifted     (ifu_exu_imm_shifted  ),
+      .ifu_exu_c_d             (ifu_exu_c_d          ),
+
+      .ifu_exu_pc_w            (ifu_exu_pc_w         )
       );
 
    cpu7_exu exu(
       .clk                     (clk                ),
       .resetn                  (resetn             ),
 
-      .port0_valid             (port0_valid        ),
-      .port0_inst              (port0_inst         ),
-      .port0_pc                (port0_pc           ),
-      .port0_op                (port0_op           ),
-      .port0_exception         (port0_exception    ),
-      .port0_exccode           (port0_exccode      ),
-      .port0_br_target         (port0_br_target    ),
-      .port0_br_taken          (port0_br_taken     ),
-      .port0_rf_wen            (port0_rf_wen       ),
-      .port0_rf_target         (port0_rf_target    ),
-      .port0_hint              (port0_hint         ),
+      .ifu_exu_valid           (ifu_exu_valid      ),
+      .ifu_exu_inst            (ifu_exu_inst       ),
+      .ifu_exu_pc              (ifu_exu_pc         ),
+      .ifu_exu_op              (ifu_exu_op         ),
+      .ifu_exu_exception       (ifu_exu_exception  ),
+      .ifu_exu_exccode         (ifu_exu_exccode    ),
+      .ifu_exu_br_target       (ifu_exu_br_target  ),
+      .ifu_exu_br_taken        (ifu_exu_br_taken   ),
+      .ifu_exu_rf_wen          (ifu_exu_rf_wen     ),
+      .ifu_exu_rf_target       (ifu_exu_rf_target  ),
+      .ifu_exu_hint            (ifu_exu_hint       ),
+
+      .ifu_exu_imm_shifted     (ifu_exu_imm_shifted),
+      .ifu_exu_c_d             (ifu_exu_c_d        ),
+      .ifu_exu_pc_w            (ifu_exu_pc_w       ),
 
       .debug0_wb_pc            (debug0_wb_pc       ),
       .debug0_wb_rf_wen        (debug0_wb_rf_wen   ),
@@ -242,7 +256,7 @@ module cpu7(
       .clk               (clk              ),
       .reset             (~resetn          ),  
 
-      .test_pc           (port0_pc         ),   // test
+      .test_pc           (ifu_exu_pc       ),   // test
 
       .tlb_req           (tlb_req          ),
       .tlb_recv          (tlb_recv         ),

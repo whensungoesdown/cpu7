@@ -23,27 +23,32 @@ module cpu7_ifu(
 
    
    // port0
-   output wire                              port0_valid,
-   output wire [31:0]                       port0_inst,
-   output wire [`GRLEN-1:0]                 port0_pc,
-   output wire [`LSOC1K_DECODE_RES_BIT-1:0] port0_op,
-   output wire                              port0_exception,
-   output wire [5 :0]                       port0_exccode,
-   output wire [`GRLEN-3:0]                 port0_br_target,
-   output wire                              port0_br_taken,
-   output wire                              port0_rf_wen,
-   output wire [4:0]                        port0_rf_target,
-   output wire [`LSOC1K_PRU_HINT-1:0]       port0_hint
+   output wire                              ifu_exu_valid,
+   output wire [31:0]                       ifu_exu_inst,
+   output wire [`GRLEN-1:0]                 ifu_exu_pc,
+   output wire [`LSOC1K_DECODE_RES_BIT-1:0] ifu_exu_op,
+   output wire                              ifu_exu_exception,
+   output wire [5 :0]                       ifu_exu_exccode,
+   output wire [`GRLEN-3:0]                 ifu_exu_br_target,
+   output wire                              ifu_exu_br_taken,
+   output wire                              ifu_exu_rf_wen,
+   output wire [4:0]                        ifu_exu_rf_target,
+   output wire [`LSOC1K_PRU_HINT-1:0]       ifu_exu_hint,
+
+   output wire [31:0]                       ifu_exu_imm_shifted,
+   output wire [`GRLEN-1:0]                 ifu_exu_c_d,
+
+   output wire [`GRLEN-1:0]                 ifu_exu_pc_w
    );
 
-   wire                             de_port0_valid;
-   wire [`GRLEN-1:0]                de_port0_pc;
-   wire [31:0]                      de_port0_inst;
-   wire                             de_port0_br_taken;
-   wire [`GRLEN-3:0]                de_port0_br_target;  
-   wire                             de_port0_exception;
-   wire [5:0]                       de_port0_exccode;
-   wire [`LSOC1K_PRU_HINT-1:0]      de_port0_hint;
+   wire                             fdp_dec_valid;
+   wire [`GRLEN-1:0]                fdp_dec_pc;
+   wire [31:0]                      fdp_dec_inst;
+   wire                             fdp_dec_br_taken;
+   wire [`GRLEN-3:0]                fdp_dec_br_target;  
+   wire                             fdp_dec_exception;
+   wire [5:0]                       fdp_dec_exccode;
+   wire [`LSOC1K_PRU_HINT-1:0]      fdp_dec_hint;
 
    cpu7_ifu_fdp fdp(
       .clock            (clock             ),
@@ -65,14 +70,16 @@ module cpu7_ifu(
       .inst_ex          (inst_ex           ),
       .inst_exccode     (inst_exccode      ),
 
-      .o_port0_valid    (de_port0_valid    ),
-      .o_port0_pc       (de_port0_pc       ),
-      .o_port0_inst     (de_port0_inst     ),
-      .o_port0_taken    (de_port0_br_taken ),
-      .o_port0_target   (de_port0_br_target),
-      .o_port0_ex       (de_port0_exception),
-      .o_port0_exccode  (de_port0_exccode  ),
-      .o_port0_hint     (de_port0_hint     )
+      .fdp_dec_valid    (fdp_dec_valid    ),
+      .fdp_dec_pc       (fdp_dec_pc       ),
+      .fdp_dec_inst     (fdp_dec_inst     ),
+      .fdp_dec_taken    (fdp_dec_br_taken ),
+      .fdp_dec_target   (fdp_dec_br_target),
+      .fdp_dec_ex       (fdp_dec_exception),
+      .fdp_dec_exccode  (fdp_dec_exccode  ),
+      .fdp_dec_hint     (fdp_dec_hint     ),
+
+      .ifu_exu_pc_w     (ifu_exu_pc_w     )
       );
 
 
@@ -83,28 +90,36 @@ module cpu7_ifu(
       // output  de_allow_in,
       // output de_accept
 
-      .de_port0_valid        (de_port0_valid     ),
-      .de_port0_pc           (de_port0_pc        ),
-      .de_port0_inst         (de_port0_inst      ),
-      .de_port0_br_target    (de_port0_br_target ),
-      .de_port0_br_taken     (de_port0_br_taken  ),
-      .de_port0_exception    (de_port0_exception ),
-      .de_port0_exccode      (de_port0_exccode   ),
-      .de_port0_hint         (de_port0_hint      ),
+      .fdp_dec_valid        (fdp_dec_valid     ),
+      .fdp_dec_pc           (fdp_dec_pc        ),
+      .fdp_dec_inst         (fdp_dec_inst      ),
+      .fdp_dec_br_target    (fdp_dec_br_target ),
+      .fdp_dec_br_taken     (fdp_dec_br_taken  ),
+      .fdp_dec_exception    (fdp_dec_exception ),
+      .fdp_dec_exccode      (fdp_dec_exccode   ),
+      .fdp_dec_hint         (fdp_dec_hint      ),
 
       .int_except            (1'b0               ), // test
       
-      .is_port0_valid        (port0_valid        ),
-      .is_port0_inst         (port0_inst         ),
-      .is_port0_pc           (port0_pc           ),
-      .is_port0_op           (port0_op           ),
-      .is_port0_exception    (port0_exception    ),
-      .is_port0_exccode      (port0_exccode      ),
-      .is_port0_br_target    (port0_br_target    ),
-      .is_port0_br_taken     (port0_br_taken     ),
-      .is_port0_rf_wen       (port0_rf_wen       ),
-      .is_port0_rf_target    (port0_rf_target    ),
-      .is_port0_hint         (port0_hint         )
+      .ifu_exu_valid        (ifu_exu_valid        ),
+      .ifu_exu_inst         (ifu_exu_inst         ),
+      .ifu_exu_pc           (ifu_exu_pc           ),
+      .ifu_exu_op           (ifu_exu_op           ),
+      .ifu_exu_exception    (ifu_exu_exception    ),
+      .ifu_exu_exccode      (ifu_exu_exccode      ),
+      .ifu_exu_br_target    (ifu_exu_br_target    ),
+      .ifu_exu_br_taken     (ifu_exu_br_taken     ),
+      .ifu_exu_rf_wen       (ifu_exu_rf_wen       ),
+      .ifu_exu_rf_target    (ifu_exu_rf_target    ),
+      .ifu_exu_hint         (ifu_exu_hint         )
+      );
+
+   // cpu7_ifu_imd, decode offset imm
+   cpu7_ifu_imd imd(
+      .ifu_exu_inst        (ifu_exu_inst          ),
+      .ifu_exu_op          (ifu_exu_op            ),
+      .ifu_exu_imm_shifted (ifu_exu_imm_shifted   ),
+      .ifu_exu_c_d         (ifu_exu_c_d           )
       );
    
 endmodule // cpu7_ifu

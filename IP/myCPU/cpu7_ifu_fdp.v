@@ -21,14 +21,16 @@ module cpu7_ifu_fdp(
    input  wire [31 :0] br_target      ,
 
    // group o
-   output wire                        o_port0_valid  ,
-   output wire                        o_port0_ex     ,
-   output wire [5  :0]                o_port0_exccode,
-   output wire [`LSOC1K_PRU_HINT-1:0] o_port0_hint   ,
-   output wire [31 :0]                o_port0_inst   ,
-   output wire [31 :0]                o_port0_pc     ,
-   output wire                        o_port0_taken  ,
-   output wire [29 :0]                o_port0_target 
+   output wire                        fdp_dec_valid  ,
+   output wire                        fdp_dec_ex     ,
+   output wire [5  :0]                fdp_dec_exccode,
+   output wire [`LSOC1K_PRU_HINT-1:0] fdp_dec_hint   ,
+   output wire [31 :0]                fdp_dec_inst   ,
+   output wire [31 :0]                fdp_dec_pc     ,
+   output wire                        fdp_dec_taken  ,
+   output wire [29 :0]                fdp_dec_target ,
+   
+   output wire [`GRLEN-1:0]           ifu_exu_pc_w
    );
 
 
@@ -59,19 +61,25 @@ module cpu7_ifu_fdp(
 
    // let the later stage ignore the prediction, stall pipeline until the branch
    // is calculated
-   assign o_port0_taken = 1'b0;
-   assign o_port0_target = 30'b0;
+   assign fdp_dec_taken = 1'b0;
+   assign fdp_dec_target = 30'b0;
 
-   assign o_port0_ex = inst_ex;
-   assign o_port0_exccode = inst_exccode;
+   assign fdp_dec_ex = inst_ex;
+   assign fdp_dec_exccode = inst_exccode;
 
-   assign o_port0_valid = inst_valid;
+   assign fdp_dec_valid = inst_valid;
 
 
    //===================================================
    // PC Datapath
    //===================================================
 
+   wire [`GRLEN-1:0] pc_d;
+   wire [`GRLEN-1:0] pc_e;
+   wire [`GRLEN-1:0] pc_m;
+   wire [`GRLEN-1:0] pc_w;
+   
+   
    // pc_before_fetch
    assign inst_addr = pc_bf;
 
@@ -93,14 +101,52 @@ module cpu7_ifu_fdp(
    
 
    
-   assign o_port0_pc = pc_f; 
+   assign fdp_dec_pc = pc_f; 
 //   dff_s #(32) pcport0_reg (
 //      .din (pc_f),
 //      .clk (clock),
-//      .q   (o_port0_pc),
+//      .q   (fdp_dec_pc),
 //      .se(), .si(), .so());
-   
 
+   // pc_d_reg和cpu7_ifu_dec里的port0_pc_reg重复了
+   //  这和设计模块时的想法有关
+   // chiplab里的模块是像paterson书里的例子一样，一排流水线寄存器直接传给下一个周期
+   // 但在opensparc T1里，比如pc相关的流水线寄存器都是大部分放在sparc_ifu_fdp里
+   // 这里我也想学opensparc，pc相关的寄存器放在这里，后面在writeback阶段需要pc给debug port
+   // 所以要把pc各阶段的寄存器都保留下去
+   // 这样需要注意一个问题就是认为ifu传给dec开始就一个cycle一个cycle的执行下去了
+   // 我在exu里吧valid传给了wen，这只是暂时的办法，因为现在只实现了算术运算指令，只要不wb rd
+   // 指令就无效。
+   // 但后面其它如lsu，一定需要valid跟着流水线走下去，或者像opensparc里那样，有kill信号
+   // 现在就先这样。。。
+
+   dff_s #(`GRLEN) pc_d_reg (
+      .din (pc_f),
+      .clk (clock),
+      .q   (pc_d),
+      .se(), .si(), .so());
+   
+   dff_s #(`GRLEN) pc_e_reg (
+      .din (pc_d),
+      .clk (clock),
+      .q   (pc_e),
+      .se(), .si(), .so());
+
+   dff_s #(`GRLEN) pc_m_reg (
+      .din (pc_e),
+      .clk (clock),
+      .q   (pc_m),
+      .se(), .si(), .so());
+   
+   dff_s #(`GRLEN) pc_w_reg (
+      .din (pc_m),
+      .clk (clock),
+      .q   (pc_w),
+      .se(), .si(), .so());
+
+   assign ifu_exu_pc_w = pc_w;
+
+   
    assign pcinc_f[1:0] = pc_f[1:0];
 
    cpu7_ifu_incr30 pc_inc (
@@ -154,12 +200,12 @@ module cpu7_ifu_fdp(
    
    assign inst = inst_rdata[31:0];
 
-   assign o_port0_inst = inst;
+   assign fdp_dec_inst = inst;
    
 //   dff_s #(32) inst_reg (
 //      .din (inst),
 //      .clk (clock),
-//      .q   (o_port0_inst),
+//      .q   (fdp_dec_inst),
 //      .se(), .si(), .so());
 
 
@@ -170,7 +216,7 @@ module cpu7_ifu_fdp(
 //      .se(), .si(), so());
 
 
-   assign o_port0_hint = `LSOC1K_PRU_HINT'b0;
+   assign fdp_dec_hint = `LSOC1K_PRU_HINT'b0;
    
 endmodule // cpu7_ifu_fdp
 
