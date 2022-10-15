@@ -72,19 +72,19 @@ module cpu7(
     output  [`GRLEN-1:0]   debug1_wb_rf_wdata
 );
 
-   wire                              ifu_exu_valid;
-   wire [31:0]                       ifu_exu_inst;
-   wire [`GRLEN-1:0]                 ifu_exu_pc;
-   wire [`LSOC1K_DECODE_RES_BIT-1:0] ifu_exu_op;     
-   wire                              ifu_exu_exception;
-   wire [5:0]                        ifu_exu_exccode;
-   wire [`GRLEN-3:0]                 ifu_exu_br_target;
-   wire                              ifu_exu_br_taken;
-   wire                              ifu_exu_rf_wen;     
-   wire [4:0]                        ifu_exu_rf_target;
-   wire [`LSOC1K_PRU_HINT:0]         ifu_exu_hint;       
+   wire                              ifu_exu_valid_d;
+   wire [31:0]                       ifu_exu_inst_d;
+   wire [`GRLEN-1:0]                 ifu_exu_pc_d;
+   wire [`LSOC1K_DECODE_RES_BIT-1:0] ifu_exu_op_d;     
+   wire                              ifu_exu_exception_d;
+   wire [5:0]                        ifu_exu_exccode_d;
+   wire [`GRLEN-3:0]                 ifu_exu_br_target_d;
+   wire                              ifu_exu_br_taken_d;
+   wire                              ifu_exu_rf_wen_d;     
+   wire [4:0]                        ifu_exu_rf_target_d;
+   wire [`LSOC1K_PRU_HINT:0]         ifu_exu_hint_d;       
 
-   wire [31:0]                       ifu_exu_imm_shifted;
+   wire [31:0]                       ifu_exu_imm_shifted_d;
    wire [`GRLEN-1:0]                 ifu_exu_c_d;
 
    wire [`GRLEN-1:0]                 ifu_exu_pc_w;
@@ -111,53 +111,53 @@ module cpu7(
       .exu_ifu_br_target       (31'b0              ),
 
       // now only have one port
-      .ifu_exu_valid           (ifu_exu_valid        ),
-      .ifu_exu_inst            (ifu_exu_inst         ),
-      .ifu_exu_pc              (ifu_exu_pc           ),
-      .ifu_exu_op              (ifu_exu_op           ),
-      .ifu_exu_exception       (ifu_exu_exception    ),
-      .ifu_exu_exccode         (ifu_exu_exccode      ),
-      .ifu_exu_br_target       (ifu_exu_br_target    ),
-      .ifu_exu_br_taken        (ifu_exu_br_taken     ),
-      .ifu_exu_rf_wen          (ifu_exu_rf_wen       ),
-      .ifu_exu_rf_target       (ifu_exu_rf_target    ),
-      .ifu_exu_hint            (ifu_exu_hint         ),
+      .ifu_exu_valid_d         (ifu_exu_valid_d      ),
+      .ifu_exu_inst_d          (ifu_exu_inst_d       ),
+      .ifu_exu_pc_d            (ifu_exu_pc_d         ),
+      .ifu_exu_op_d            (ifu_exu_op_d         ),
+      .ifu_exu_exception_d     (ifu_exu_exception_d  ),
+      .ifu_exu_exccode_d       (ifu_exu_exccode_d    ),
+      .ifu_exu_br_target_d     (ifu_exu_br_target_d  ),
+      .ifu_exu_br_taken_d      (ifu_exu_br_taken_d   ),
+      .ifu_exu_rf_wen_d        (ifu_exu_rf_wen_d     ),
+      .ifu_exu_rf_target_d     (ifu_exu_rf_target_d  ),
+      .ifu_exu_hint_d          (ifu_exu_hint_d       ),
 
-      .ifu_exu_imm_shifted     (ifu_exu_imm_shifted  ),
+      .ifu_exu_imm_shifted_d   (ifu_exu_imm_shifted_d),
       .ifu_exu_c_d             (ifu_exu_c_d          ),
 
       .ifu_exu_pc_w            (ifu_exu_pc_w         )
       );
 
    cpu7_exu exu(
-      .clk                     (clk                ),
-      .resetn                  (resetn             ),
+      .clk                     (clk                  ),
+      .resetn                  (resetn               ),
 
-      .ifu_exu_valid           (ifu_exu_valid      ),
-      .ifu_exu_inst            (ifu_exu_inst       ),
-      .ifu_exu_pc              (ifu_exu_pc         ),
-      .ifu_exu_op              (ifu_exu_op         ),
-      .ifu_exu_exception       (ifu_exu_exception  ),
-      .ifu_exu_exccode         (ifu_exu_exccode    ),
-      .ifu_exu_br_target       (ifu_exu_br_target  ),
-      .ifu_exu_br_taken        (ifu_exu_br_taken   ),
-      .ifu_exu_rf_wen          (ifu_exu_rf_wen     ),
-      .ifu_exu_rf_target       (ifu_exu_rf_target  ),
-      .ifu_exu_hint            (ifu_exu_hint       ),
+      .ifu_exu_valid_d         (ifu_exu_valid_d      ),
+      .ifu_exu_inst_d          (ifu_exu_inst_d       ),
+      .ifu_exu_pc_d            (ifu_exu_pc_d         ),
+      .ifu_exu_op_d            (ifu_exu_op_d         ),
+      .ifu_exu_exception_d     (ifu_exu_exception_d  ),
+      .ifu_exu_exccode_d       (ifu_exu_exccode_d    ),
+      .ifu_exu_br_target_d     (ifu_exu_br_target_d  ),
+      .ifu_exu_br_taken_d      (ifu_exu_br_taken_d   ),
+      .ifu_exu_rf_wen_d        (ifu_exu_rf_wen_d     ),
+      .ifu_exu_rf_target_d     (ifu_exu_rf_target_d  ),
+      .ifu_exu_hint_d          (ifu_exu_hint_d       ),
 
-      .ifu_exu_imm_shifted     (ifu_exu_imm_shifted),
-      .ifu_exu_c_d             (ifu_exu_c_d        ),
-      .ifu_exu_pc_w            (ifu_exu_pc_w       ),
+      .ifu_exu_imm_shifted_d   (ifu_exu_imm_shifted_d),
+      .ifu_exu_c_d             (ifu_exu_c_d          ),
+      .ifu_exu_pc_w            (ifu_exu_pc_w         ),
 
-      .debug0_wb_pc            (debug0_wb_pc       ),
-      .debug0_wb_rf_wen        (debug0_wb_rf_wen   ),
-      .debug0_wb_rf_wnum       (debug0_wb_rf_wnum  ),
-      .debug0_wb_rf_wdata      (debug0_wb_rf_wdata ),
+      .debug0_wb_pc            (debug0_wb_pc         ),
+      .debug0_wb_rf_wen        (debug0_wb_rf_wen     ),
+      .debug0_wb_rf_wnum       (debug0_wb_rf_wnum    ),
+      .debug0_wb_rf_wdata      (debug0_wb_rf_wdata   ),
       
-      .debug1_wb_pc            (debug1_wb_pc       ),
-      .debug1_wb_rf_wen        (debug1_wb_rf_wen   ),
-      .debug1_wb_rf_wnum       (debug1_wb_rf_wnum  ),
-      .debug1_wb_rf_wdata      (debug1_wb_rf_wdata )
+      .debug1_wb_pc            (debug1_wb_pc         ),
+      .debug1_wb_rf_wen        (debug1_wb_rf_wen     ),
+      .debug1_wb_rf_wnum       (debug1_wb_rf_wnum    ),
+      .debug1_wb_rf_wdata      (debug1_wb_rf_wdata   )
       );
 
    

@@ -4,13 +4,13 @@
 module cpu7_exu_ecl(
    input                                clk,
    input                                resetn,
-   input                                ifu_exu_valid,
-   input  [31:0]	                ifu_exu_inst,
-   input  [`GRLEN-1:0]	                ifu_exu_pc,
-   input  [`LSOC1K_DECODE_RES_BIT-1:0]  ifu_exu_op,
-   input                                ifu_exu_rf_wen,
-   input  [4:0]                         ifu_exu_rf_target,
-   input  [31:0]                        ifu_exu_imm_shifted,
+   input                                ifu_exu_valid_d,
+   input  [31:0]	                ifu_exu_inst_d,
+   input  [`GRLEN-1:0]	                ifu_exu_pc_d,
+   input  [`LSOC1K_DECODE_RES_BIT-1:0]  ifu_exu_op_d,
+   input                                ifu_exu_rf_wen_d,
+   input  [4:0]                         ifu_exu_rf_target_d,
+   input  [31:0]                        ifu_exu_imm_shifted_d,
    input  [`GRLEN-1:0]                  ifu_exu_c_d,
    input  [`GRLEN-1:0]                  irf_ecl_rs1_data_d,
    input  [`GRLEN-1:0]                  irf_ecl_rs2_data_d,
@@ -31,8 +31,8 @@ module cpu7_exu_ecl(
 
    ////register interface
    // common registers
-   assign ecl_irf_rs1_d = ifu_exu_op[`LSOC1K_RD2RJ  ] ? `GET_RD(ifu_exu_inst) : `GET_RJ(ifu_exu_inst);
-   assign ecl_irf_rs2_d = ifu_exu_op[`LSOC1K_RD_READ] ? `GET_RD(ifu_exu_inst) : `GET_RK(ifu_exu_inst);
+   assign ecl_irf_rs1_d = ifu_exu_op_d[`LSOC1K_RD2RJ  ] ? `GET_RD(ifu_exu_inst_d) : `GET_RJ(ifu_exu_inst_d);
+   assign ecl_irf_rs2_d = ifu_exu_op_d[`LSOC1K_RD_READ] ? `GET_RD(ifu_exu_inst_d) : `GET_RK(ifu_exu_inst_d);
    //assign raddr1_0 = is_port1_op[`LSOC1K_RD2RJ  ] ? `GET_RD(is_port1_inst) : `GET_RJ(is_port1_inst);
    //assign raddr1_1 = is_port1_op[`LSOC1K_RD_READ] ? `GET_RD(is_port1_inst) : `GET_RK(is_port1_inst);
    //assign raddr2_0 = port0_triple_read ? `GET_RK(is_port0_inst) : is_port2_op[`LSOC1K_RD2RJ] ? `GET_RD(is_port2_inst) : `GET_RJ(is_port2_inst);
@@ -41,7 +41,7 @@ module cpu7_exu_ecl(
 
    
    
-   wire [`LSOC1K_ALU_CODE_BIT-1:0] alu_op = ifu_exu_op[`LSOC1K_ALU_CODE];
+   wire [`LSOC1K_ALU_CODE_BIT-1:0] alu_op = ifu_exu_op_d[`LSOC1K_ALU_CODE];
 
 
 
@@ -49,30 +49,30 @@ module cpu7_exu_ecl(
    
    ////ALU input
    //A:
-   wire alu_a_zero = ifu_exu_op[`LSOC1K_LUI];// op_rdpgpr_1 || op_wrpgpr_1; //zero
-   wire alu_a_pc = ifu_exu_op[`LSOC1K_PC_RELATED];
+   wire alu_a_zero = ifu_exu_op_d[`LSOC1K_LUI];// op_rdpgpr_1 || op_wrpgpr_1; //zero
+   wire alu_a_pc = ifu_exu_op_d[`LSOC1K_PC_RELATED];
 
    //B:
-   wire alu_b_imm = ifu_exu_op[`LSOC1K_I5] || ifu_exu_op[`LSOC1K_I12] || ifu_exu_op[`LSOC1K_I16] || ifu_exu_op[`LSOC1K_I20];
+   wire alu_b_imm = ifu_exu_op_d[`LSOC1K_I5] || ifu_exu_op_d[`LSOC1K_I12] || ifu_exu_op_d[`LSOC1K_I16] || ifu_exu_op_d[`LSOC1K_I20];
 
-   //wire ecl_alu_b_get_a = ifu_exu_op[`LSOC1K_ALU_CODE] == `LSOC1K_ALU_EXT;
+   //wire ecl_alu_b_get_a = ifu_exu_op_d[`LSOC1K_ALU_CODE] == `LSOC1K_ALU_EXT;
 
 
 
-   //assign alu_a = alu_a_pc? ifu_exu_pc : rdata0_0_input;
-   wire [`GRLEN-1:0] alu_a_d = alu_a_pc? ifu_exu_pc : irf_ecl_rs1_data_d;
+   //assign alu_a = alu_a_pc? ifu_exu_pc_d : rdata0_0_input;
+   wire [`GRLEN-1:0] alu_a_d = alu_a_pc? ifu_exu_pc_d : irf_ecl_rs1_data_d;
 
    //wire port0_a_lsu_fw;
    //assign port0_a_lsu_fw = !alu0_a_pc && rdata0_0_lsu_fw;
 
-   //assign alu_b = alu_b_imm? ifu_exu_imm_shifted : rdata0_1_input;
-   wire [`GRLEN-1:0] alu_b_d = alu_b_imm? ifu_exu_imm_shifted : irf_ecl_rs2_data_d;
+   //assign alu_b = alu_b_imm? ifu_exu_imm_shifted_d : rdata0_1_input;
+   wire [`GRLEN-1:0] alu_b_d = alu_b_imm? ifu_exu_imm_shifted_d : irf_ecl_rs2_data_d;
 
    //wire port0_b_lsu_fw;
    //assign port0_b_lsu_fw = !alu0_b_imm && rdata0_1_lsu_fw; 
 
 
-   wire alu_double_word_d = ifu_exu_op[`LSOC1K_DOUBLE_WORD];
+   wire alu_double_word_d = ifu_exu_op_d[`LSOC1K_DOUBLE_WORD];
    
 
    dff_s #(`GRLEN) alu_a_reg (
@@ -114,7 +114,7 @@ module cpu7_exu_ecl(
    wire [4:0] rd_w;
    
    dff_s #(5) rd_e_reg (
-      .din (ifu_exu_rf_target),
+      .din (ifu_exu_rf_target_d),
       .clk (clk),
       .q   (rd_e),
       .se(), .si(), .so());
@@ -139,7 +139,7 @@ module cpu7_exu_ecl(
    wire [4:0] wen_m;
    wire [4:0] wen_w;
 
-   assign wen_d = ifu_exu_rf_wen & ifu_exu_valid;
+   assign wen_d = ifu_exu_rf_wen_d & ifu_exu_valid_d;
    
    dff_s #(1) wen_e_reg (
       .din (wen_d),

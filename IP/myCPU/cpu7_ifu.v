@@ -23,19 +23,19 @@ module cpu7_ifu(
 
    
    // port0
-   output wire                              ifu_exu_valid,
-   output wire [31:0]                       ifu_exu_inst,
-   output wire [`GRLEN-1:0]                 ifu_exu_pc,
-   output wire [`LSOC1K_DECODE_RES_BIT-1:0] ifu_exu_op,
-   output wire                              ifu_exu_exception,
-   output wire [5 :0]                       ifu_exu_exccode,
-   output wire [`GRLEN-3:0]                 ifu_exu_br_target,
-   output wire                              ifu_exu_br_taken,
-   output wire                              ifu_exu_rf_wen,
-   output wire [4:0]                        ifu_exu_rf_target,
-   output wire [`LSOC1K_PRU_HINT-1:0]       ifu_exu_hint,
+   output wire                              ifu_exu_valid_d,
+   output wire [31:0]                       ifu_exu_inst_d,
+   output wire [`GRLEN-1:0]                 ifu_exu_pc_d,
+   output wire [`LSOC1K_DECODE_RES_BIT-1:0] ifu_exu_op_d,
+   output wire                              ifu_exu_exception_d,
+   output wire [5 :0]                       ifu_exu_exccode_d,
+   output wire [`GRLEN-3:0]                 ifu_exu_br_target_d,
+   output wire                              ifu_exu_br_taken_d,
+   output wire                              ifu_exu_rf_wen_d,
+   output wire [4:0]                        ifu_exu_rf_target_d,
+   output wire [`LSOC1K_PRU_HINT-1:0]       ifu_exu_hint_d,
 
-   output wire [31:0]                       ifu_exu_imm_shifted,
+   output wire [31:0]                       ifu_exu_imm_shifted_d,
    output wire [`GRLEN-1:0]                 ifu_exu_c_d,
 
    output wire [`GRLEN-1:0]                 ifu_exu_pc_w
@@ -90,36 +90,36 @@ module cpu7_ifu(
       // output  de_allow_in,
       // output de_accept
 
-      .fdp_dec_valid        (fdp_dec_valid     ),
-      .fdp_dec_pc           (fdp_dec_pc        ),
-      .fdp_dec_inst         (fdp_dec_inst      ),
-      .fdp_dec_br_target    (fdp_dec_br_target ),
-      .fdp_dec_br_taken     (fdp_dec_br_taken  ),
-      .fdp_dec_exception    (fdp_dec_exception ),
-      .fdp_dec_exccode      (fdp_dec_exccode   ),
-      .fdp_dec_hint         (fdp_dec_hint      ),
+      .fdp_dec_valid        (fdp_dec_valid       ),
+      .fdp_dec_pc           (fdp_dec_pc          ),
+      .fdp_dec_inst         (fdp_dec_inst        ),
+      .fdp_dec_br_target    (fdp_dec_br_target   ),
+      .fdp_dec_br_taken     (fdp_dec_br_taken    ),
+      .fdp_dec_exception    (fdp_dec_exception   ),
+      .fdp_dec_exccode      (fdp_dec_exccode     ),
+      .fdp_dec_hint         (fdp_dec_hint        ),
 
-      .int_except            (1'b0               ), // test
+      .int_except           (1'b0                ), // test
       
-      .ifu_exu_valid        (ifu_exu_valid        ),
-      .ifu_exu_inst         (ifu_exu_inst         ),
-      .ifu_exu_pc           (ifu_exu_pc           ),
-      .ifu_exu_op           (ifu_exu_op           ),
-      .ifu_exu_exception    (ifu_exu_exception    ),
-      .ifu_exu_exccode      (ifu_exu_exccode      ),
-      .ifu_exu_br_target    (ifu_exu_br_target    ),
-      .ifu_exu_br_taken     (ifu_exu_br_taken     ),
-      .ifu_exu_rf_wen       (ifu_exu_rf_wen       ),
-      .ifu_exu_rf_target    (ifu_exu_rf_target    ),
-      .ifu_exu_hint         (ifu_exu_hint         )
+      .ifu_exu_valid_d      (ifu_exu_valid_d     ),
+      .ifu_exu_inst_d       (ifu_exu_inst_d      ),
+      .ifu_exu_pc_d         (ifu_exu_pc_d        ),
+      .ifu_exu_op_d         (ifu_exu_op_d        ),
+      .ifu_exu_exception_d  (ifu_exu_exception_d ),
+      .ifu_exu_exccode_d    (ifu_exu_exccode_d   ),
+      .ifu_exu_br_target_d  (ifu_exu_br_target_d ),
+      .ifu_exu_br_taken_d   (ifu_exu_br_taken_d  ),
+      .ifu_exu_rf_wen_d     (ifu_exu_rf_wen_d    ),
+      .ifu_exu_rf_target_d  (ifu_exu_rf_target_d ),
+      .ifu_exu_hint_d       (ifu_exu_hint_d      )
       );
 
    // cpu7_ifu_imd, decode offset imm
    cpu7_ifu_imd imd(
-      .ifu_exu_inst        (ifu_exu_inst          ),
-      .ifu_exu_op          (ifu_exu_op            ),
-      .ifu_exu_imm_shifted (ifu_exu_imm_shifted   ),
-      .ifu_exu_c_d         (ifu_exu_c_d           )
+      .ifu_exu_inst_d        (ifu_exu_inst_d        ),
+      .ifu_exu_op_d          (ifu_exu_op_d          ),
+      .ifu_exu_imm_shifted_d (ifu_exu_imm_shifted_d ),
+      .ifu_exu_c_d           (ifu_exu_c_d           )
       );
    
 endmodule // cpu7_ifu

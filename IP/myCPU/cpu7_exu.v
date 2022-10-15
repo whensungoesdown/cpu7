@@ -5,19 +5,19 @@ module cpu7_exu(
    input                                clk,
    input                                resetn,
 
-   input                                ifu_exu_valid,
-   input  [`GRLEN-1:0]                  ifu_exu_pc,
-   input  [31:0]	                ifu_exu_inst,
-   input  [`LSOC1K_DECODE_RES_BIT-1:0]  ifu_exu_op,
-   input  [`GRLEN-3:0]                  ifu_exu_br_target,
-   input                                ifu_exu_br_taken,
-   input                                ifu_exu_exception,
-   input  [5:0]                         ifu_exu_exccode,
-   input                                ifu_exu_rf_wen,
-   input  [4:0]                         ifu_exu_rf_target,
-   input  [`LSOC1K_PRU_HINT:0]          ifu_exu_hint,
+   input                                ifu_exu_valid_d,
+   input  [`GRLEN-1:0]                  ifu_exu_pc_d,
+   input  [31:0]	                ifu_exu_inst_d,
+   input  [`LSOC1K_DECODE_RES_BIT-1:0]  ifu_exu_op_d,
+   input  [`GRLEN-3:0]                  ifu_exu_br_target_d,
+   input                                ifu_exu_br_taken_d,
+   input                                ifu_exu_exception_d,
+   input  [5:0]                         ifu_exu_exccode_d,
+   input                                ifu_exu_rf_wen_d,
+   input  [4:0]                         ifu_exu_rf_target_d,
+   input  [`LSOC1K_PRU_HINT:0]          ifu_exu_hint_d,
 
-   input  [31:0]                        ifu_exu_imm_shifted,
+   input  [31:0]                        ifu_exu_imm_shifted_d,
    input  [`GRLEN-1:0]                  ifu_exu_c_d,
 
    input  [`GRLEN-1:0]                  ifu_exu_pc_w,
@@ -50,21 +50,41 @@ module cpu7_exu(
    wire [`GRLEN-1:0]                    alu_ecl_res_e;
 
    wire [`GRLEN-1:0]                    ecl_irf_rd_data_w;
-   wire [4:0]                           ecl_irf_rd_w; // derived from ifu_exu_rf_target
+   wire [4:0]                           ecl_irf_rd_w; // derived from ifu_exu_rf_target_d
    wire                                 ecl_irf_wen_w;
 
+
+
+   wire [`GRLEN-1:0] dumb_rdata1_0;
+   wire [`GRLEN-1:0] dumb_rdata1_1;
+   wire [`GRLEN-1:0] dumb_rdata2_0;
+   wire [`GRLEN-1:0] dumb_rdata2_1;
    
    reg_file registers(
         .clk        (clk                  ),
 
         .waddr1     (ecl_irf_rd_w         ),// I, 5
-        .raddr0_0   (ecl_irf_rs1_d        ),// I, 32
-        .raddr0_1   (ecl_irf_rs2_d        ),// I, 32
+        .raddr0_0   (ecl_irf_rs1_d        ),// I, 5
+        .raddr0_1   (ecl_irf_rs2_d        ),// I, 5
         .wen1       (ecl_irf_wen_w        ),// I, 1
         .wdata1     (ecl_irf_rd_data_w    ),// I, 32
         .rdata0_0   (irf_ecl_rs1_data_d   ),// O, 32
         .rdata0_1   (irf_ecl_rs2_data_d   ),// O, 32
 
+      
+        .waddr2     (5'b0       ),// I, 5
+        .raddr1_0   (5'b0       ),// I, 32
+        .raddr1_1   (5'b0       ),// I, 32
+        .wen2       (1'b0       ),// I, 1
+        .wdata2     (32'b0      ),// I, 32
+        .rdata1_0   (dumb_rdata1_0   ),// O, 32
+        .rdata1_1   (dumb_rdata1_1   ),// O, 32
+
+        .raddr2_0   (5'b0       ),// I, 5
+        .raddr2_1   (5'b0   ),// I, 5
+        .rdata2_0   (dumb_rdata2_0   ),// O, 32
+        .rdata2_1   (dumb_rdata2_1   ) // O, 32
+      
 //        .waddr2     (waddr2     ),// I, 32
 //        .raddr1_0   (raddr1_0   ),// I, 32
 //        .raddr1_1   (raddr1_1   ),// I, 32
@@ -84,13 +104,13 @@ module cpu7_exu(
    cpu7_exu_ecl ecl(
       .clk                      (clk                 ),
       .resetn                   (resetn              ),
-      .ifu_exu_valid            (ifu_exu_valid       ),
-      .ifu_exu_inst             (ifu_exu_inst        ),
-      .ifu_exu_op               (ifu_exu_op          ),
-      .ifu_exu_pc               (ifu_exu_pc          ),
-      .ifu_exu_rf_wen           (ifu_exu_rf_wen      ),
-      .ifu_exu_rf_target        (ifu_exu_rf_target   ),
-      .ifu_exu_imm_shifted      (ifu_exu_imm_shifted ),
+      .ifu_exu_valid_d          (ifu_exu_valid_d     ),
+      .ifu_exu_inst_d           (ifu_exu_inst_d      ),
+      .ifu_exu_op_d             (ifu_exu_op_d        ),
+      .ifu_exu_pc_d             (ifu_exu_pc_d        ),
+      .ifu_exu_rf_wen_d         (ifu_exu_rf_wen_d    ),
+      .ifu_exu_rf_target_d      (ifu_exu_rf_target_d ),
+      .ifu_exu_imm_shifted_d    (ifu_exu_imm_shifted_d),
       .ifu_exu_c_d              (ifu_exu_c_d         ),
       .irf_ecl_rs1_data_d       (irf_ecl_rs1_data_d  ),
       .irf_ecl_rs2_data_d       (irf_ecl_rs2_data_d  ),
