@@ -30,7 +30,8 @@ module cpu7_ifu_fdp(
    output wire                        fdp_dec_taken  ,
    output wire [29 :0]                fdp_dec_target ,
    
-   output wire [`GRLEN-1:0]           ifu_exu_pc_w
+   output wire [`GRLEN-1:0]           ifu_exu_pc_w   ,
+   output wire [`GRLEN-1:0]           ifu_exu_pc_e
    );
 
 
@@ -137,6 +138,8 @@ module cpu7_ifu_fdp(
       .clk (clock),
       .q   (pc_m),
       .se(), .si(), .so());
+
+   assign ifu_exu_pc_e = pc_e;
    
    dff_s #(`GRLEN) pc_w_reg (
       .din (pc_m),

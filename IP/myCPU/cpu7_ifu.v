@@ -38,7 +38,8 @@ module cpu7_ifu(
    output wire [31:0]                       ifu_exu_imm_shifted_d,
    output wire [`GRLEN-1:0]                 ifu_exu_c_d,
 
-   output wire [`GRLEN-1:0]                 ifu_exu_pc_w
+   output wire [`GRLEN-1:0]                 ifu_exu_pc_w,
+   output wire [`GRLEN-1:0]                 ifu_exu_pc_e
    );
 
    wire                             fdp_dec_valid;
@@ -79,7 +80,8 @@ module cpu7_ifu(
       .fdp_dec_exccode  (fdp_dec_exccode  ),
       .fdp_dec_hint     (fdp_dec_hint     ),
 
-      .ifu_exu_pc_w     (ifu_exu_pc_w     )
+      .ifu_exu_pc_w     (ifu_exu_pc_w     ),
+      .ifu_exu_pc_e     (ifu_exu_pc_e     )
       );
 
 

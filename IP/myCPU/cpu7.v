@@ -88,8 +88,36 @@ module cpu7(
    wire [`GRLEN-1:0]                 ifu_exu_c_d;
 
    wire [`GRLEN-1:0]                 ifu_exu_pc_w;
+   wire [`GRLEN-1:0]                 ifu_exu_pc_e;
+
+
+   
+   // Cache Pipeline Bus
+   wire               data_req       ;
+   wire  [`GRLEN-1:0] data_pc        ;
+   wire               data_wr        ;
+   wire  [3 :0]       data_wstrb     ;
+   wire  [`GRLEN-1:0] data_addr      ;
+   wire               data_cancel_ex2;
+   wire               data_cancel    ;
+   wire  [`GRLEN-1:0] data_wdata     ;
+   wire               data_recv      ;
+   wire               data_prefetch  ;
+   wire               data_ll        ;
+   wire               data_sc        ;
+
+   wire  [`GRLEN-1:0] data_rdata     ;
+   wire               data_addr_ok   ;
+   wire               data_data_ok   ;
+   wire  [ 5:0]       data_exccode   ;
+   wire               data_exception ;
+   wire  [`GRLEN-1:0] data_badvaddr  ;
+   wire               data_req_empty ;
+   wire               data_scsucceed ;
 
       
+
+   
    cpu7_ifu ifu(
       .clock                   (clk                ),
       .resetn                  (resetn             ),
@@ -126,8 +154,14 @@ module cpu7(
       .ifu_exu_imm_shifted_d   (ifu_exu_imm_shifted_d),
       .ifu_exu_c_d             (ifu_exu_c_d          ),
 
-      .ifu_exu_pc_w            (ifu_exu_pc_w         )
+      .ifu_exu_pc_w            (ifu_exu_pc_w         ),
+      .ifu_exu_pc_e            (ifu_exu_pc_e         )
       );
+
+
+
+
+   
 
    cpu7_exu exu(
       .clk                     (clk                  ),
@@ -148,6 +182,33 @@ module cpu7(
       .ifu_exu_imm_shifted_d   (ifu_exu_imm_shifted_d),
       .ifu_exu_c_d             (ifu_exu_c_d          ),
       .ifu_exu_pc_w            (ifu_exu_pc_w         ),
+      .ifu_exu_pc_e            (ifu_exu_pc_e         ),
+
+      // memory interface
+      .data_req                (data_req             ),
+      .data_addr               (data_addr            ),
+      .data_wr                 (data_wr              ),
+      .data_wstrb              (data_wstrb           ),
+      .data_wdata              (data_wdata           ),
+      .data_prefetch           (data_prefetch        ),
+      .data_ll                 (data_ll              ),
+      .data_sc                 (data_sc              ),
+      .data_addr_ok            (data_addr_ok         ),
+
+      .data_recv               (data_recv            ),
+      .data_scsucceed          (data_scsucceed       ),
+      .data_rdata              (data_rdata           ),
+      .data_exception          (data_exception       ),
+      .data_excode             (data_exccode         ),
+      .data_badvaddr           (data_badvaddr        ),
+      .data_data_ok            (data_data_ok         ),
+
+      .data_pc                 (data_pc              ),
+      .data_cancel             (data_cancel          ),
+      .data_cancel_ex2         (data_cancel_ex2      ),
+      .data_req_empty          (data_req_empty       ),
+      
+      
 
       .debug0_wb_pc            (debug0_wb_pc         ),
       .debug0_wb_rf_wen        (debug0_wb_rf_wen     ),
@@ -161,28 +222,6 @@ module cpu7(
       );
 
    
-   // Cache Pipeline Bus
-   wire               data_req       ;
-   wire  [`GRLEN-1:0] data_pc        ;
-   wire               data_wr        ;
-   wire  [3 :0]       data_wstrb     ;
-   wire  [`GRLEN-1:0] data_addr      ;
-   wire               data_cancel_ex2;
-   wire               data_cancel    ;
-   wire  [`GRLEN-1:0] data_wdata     ;
-   wire               data_recv      ;
-   wire               data_prefetch  ;
-   wire               data_ll        ;
-   wire               data_sc        ;
-
-   wire  [`GRLEN-1:0] data_rdata     ;
-   wire               data_addr_ok   ;
-   wire               data_data_ok   ;
-   wire  [ 5:0]       data_exccode   ;
-   wire               data_exception ;
-   wire  [`GRLEN-1:0] data_badvaddr  ;
-   wire               data_req_empty ;
-   wire               data_scsucceed ;
 
    assign pipeline2dcache_bus[`PIPELINE2DCACHE_BUS_REQ      ] = data_req       ;
    assign pipeline2dcache_bus[`PIPELINE2DCACHE_BUS_PC       ] = data_pc        ;
@@ -256,7 +295,7 @@ module cpu7(
       .clk               (clk              ),
       .reset             (~resetn          ),  
 
-      .test_pc           (ifu_exu_pc       ),   // test
+      .test_pc           (ifu_exu_pc_e     ),   // test
 
       .tlb_req           (tlb_req          ),
       .tlb_recv          (tlb_recv         ),

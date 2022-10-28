@@ -21,7 +21,31 @@ module cpu7_exu(
    input  [`GRLEN-1:0]                  ifu_exu_c_d,
 
    input  [`GRLEN-1:0]                  ifu_exu_pc_w,
+   input  [`GRLEN-1:0]                  ifu_exu_pc_e,
 
+   // memory interface  E M
+   output                               data_req,
+   output [`GRLEN-1:0]                  data_addr,
+   output                               data_wr,
+   output [3:0]                         data_wstrb,
+   output [`GRLEN-1:0]                  data_wdata,
+   output                               data_prefetch,
+   output                               data_ll,
+   output                               data_sc,
+   input                                data_addr_ok,
+   
+   output                               data_recv,
+   input                                data_scsucceed,
+   input  [`GRLEN-1:0]                  data_rdata,
+   input                                data_exception,
+   input  [5:0]                         data_excode,
+   input  [`GRLEN-1:0]                  data_badvaddr,
+   input                                data_data_ok,
+
+   output [`GRLEN-1:0]                  data_pc,
+   output                               data_cancel,
+   output                               data_cancel_ex2,
+   input                                data_req_empty,
    
    //debug interface
    output [`GRLEN-1:0]                  debug0_wb_pc,
@@ -42,6 +66,7 @@ module cpu7_exu(
    wire [`GRLEN-1:0]                    irf_ecl_rs2_data_d;
    
    
+   // alu
    wire [`GRLEN-1:0]                    ecl_alu_a_e;
    wire [`GRLEN-1:0]                    ecl_alu_b_e;
    wire [`GRLEN-1:0]                    ecl_alu_c_e;
@@ -49,6 +74,15 @@ module cpu7_exu(
    wire                                 ecl_alu_double_word_e;
    wire [`GRLEN-1:0]                    alu_ecl_res_e;
 
+
+   // lsu
+   wire                                 ecl_lsu_valid_e;
+   wire [`LSOC1K_LSU_CODE_BIT-1:0]      ecl_lsu_op_e;
+   wire [`GRLEN-1:0]                    ecl_lsu_base_e;
+   wire [`GRLEN-1:0]                    ecl_lsu_offset_e;
+   wire [`GRLEN-1:0]                    ecl_lsu_wdata_e;
+
+   
    wire [`GRLEN-1:0]                    ecl_irf_rd_data_w;
    wire [4:0]                           ecl_irf_rd_w; // derived from ifu_exu_rf_target_d
    wire                                 ecl_irf_wen_w;
@@ -99,6 +133,15 @@ module cpu7_exu(
 //        .rdata2_1   (rdata2_1   ) // O, 32
       );
 
+   wire [4:0]                   ecl_lsu_rd_e;
+   wire                         ecl_lsu_wen_e;
+   
+   wire                         lsu_ecl_addr_ok_e;
+   wire [`GRLEN-1:0]            lsu_ecl_rdata_m;
+   wire                         lsu_ecl_rdata_valid_m;
+   wire [4:0]                   lsu_ecl_rd_m;
+   wire                         lsu_ecl_wen_m;
+
    // cpu7_exu_byp
    
    cpu7_exu_ecl ecl(
@@ -115,22 +158,37 @@ module cpu7_exu(
       .irf_ecl_rs1_data_d       (irf_ecl_rs1_data_d  ),
       .irf_ecl_rs2_data_d       (irf_ecl_rs2_data_d  ),
 
-      .alu_ecl_res_e            (alu_ecl_res_e       ),
 
       .ecl_irf_rs1_d            (ecl_irf_rs1_d       ),
       .ecl_irf_rs2_d            (ecl_irf_rs2_d       ),
+
+
+      // alu
       .ecl_alu_a_e              (ecl_alu_a_e         ),
       .ecl_alu_b_e              (ecl_alu_b_e         ),
       .ecl_alu_op_e             (ecl_alu_op_e        ),
       .ecl_alu_c_e              (ecl_alu_c_e         ),
       .ecl_alu_double_word_e    (ecl_alu_double_word_e),
+      .alu_ecl_res_e            (alu_ecl_res_e       ),
+
+      // lsu
+      .ecl_lsu_valid_e          (ecl_lsu_valid_e     ),
+      .ecl_lsu_op_e             (ecl_lsu_op_e        ),
+      .ecl_lsu_base_e           (ecl_lsu_base_e      ),
+      .ecl_lsu_offset_e         (ecl_lsu_offset_e    ),
+      .ecl_lsu_wdata_e          (ecl_lsu_wdata_e     ),
+      .ecl_lsu_rd_e             (ecl_lsu_rd_e        ),
+      .ecl_lsu_wen_e            (ecl_lsu_wen_e       ),
+      .lsu_ecl_rdata_m          (lsu_ecl_rdata_m     ),
+      .lsu_ecl_rdata_valid_m    (lsu_ecl_rdata_valid_m),
+      .lsu_ecl_rd_m             (lsu_ecl_rd_m        ),
+      .lsu_ecl_wen_m            (lsu_ecl_wen_m       ),
+
 
       .ecl_irf_rd_data_w        (ecl_irf_rd_data_w   ),
       .ecl_irf_rd_w             (ecl_irf_rd_w        ),
       .ecl_irf_wen_w            (ecl_irf_wen_w       )
       );
-
-
 
    // alu's result should pass to cpu7_exu_byp
    // now send it to ecl, ecl store is to the consequent
@@ -146,6 +204,50 @@ module cpu7_exu(
       .Result                   (alu_ecl_res_e        )
       );
 
+
+
+   lsu lsu(
+      .clk                      (clk                   ),
+      .resetn                   (resetn                ),
+
+      .valid                    (ecl_lsu_valid_e       ),
+      .lsu_op                   (ecl_lsu_op_e          ),
+      .base                     (ecl_lsu_base_e        ),
+      .offset                   (ecl_lsu_offset_e      ),
+      .wdata                    (ecl_lsu_wdata_e       ),
+      .ecl_lsu_rd_e             (ecl_lsu_rd_e          ),
+      .ecl_lsu_wen_e            (ecl_lsu_wen_e         ),
+
+      // memory interface
+      .data_req                 (data_req              ),
+      .data_addr                (data_addr             ),
+      .data_wr                  (data_wr               ),
+      .data_wstrb               (data_wstrb            ),
+      .data_prefetch            (data_prefetch         ),
+      .data_ll                  (data_ll               ),
+      .data_sc                  (data_sc               ),
+      .data_addr_ok             (data_addr_ok          ),
+
+      .data_recv                (data_recv             ),
+      .data_scsucceed           (data_scsucceed        ),
+      .data_rdata               (data_rdata            ),
+      .data_exception           (data_exception        ),
+      .data_excode              (data_excode           ),
+      .data_badvaddr            (data_badvaddr         ),
+      .data_data_ok             (data_data_ok          ),
+
+
+      // lsu output
+      .lsu_addr_finish          (lsu_ecl_addr_ok_e     ),
+      .read_result_m            (lsu_ecl_rdata_m       ), //lsu_byp_rdata_m
+      .lsu_rdata_valid_m        (lsu_ecl_rdata_valid_m ),
+      .lsu_ecl_rd_m             (lsu_ecl_rd_m          ),
+      .lsu_ecl_wen_m            (lsu_ecl_wen_m         )
+      );
+
+   assign data_pc = ifu_exu_pc_e;
+   assign data_cancel = 1'b0;
+   assign data_cancel_ex2 = 1'b0;
    
    // wrong test
    assign debug0_wb_pc = ifu_exu_pc_w;

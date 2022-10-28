@@ -6,3 +6,11 @@ u@unamed:~/prjs/cpu7/sims/verilator/run_func$ vim obj/func/func_uty0_obj/obj/tes
 
 
 make clean_all后，要在run_func目录下mkdir log
+
+
+重新编译test case，不用make clean
+
+先清空obj目录
+movetotrash obj/func/
+
+再make soft

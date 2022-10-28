@@ -30,6 +30,7 @@ void binary_out(FILE* out,unsigned char* mem)
 int main(void)
 {
 	FILE *in;
+	FILE *in2;
 	FILE *out;
 
 	int i,j,k;
@@ -92,16 +93,29 @@ int main(void)
 	fclose(out);
 
     in  = fopen("main.bin","rb");
+    in2  = fopen("main.data","rb");
     out = fopen("rom.vlog","w");
     fprintf(out,"@1c000000\n");
     while(!feof(in)) {
         if (fread(mem,1,1,in) != 1) {
-            fprintf(out,"%02x\n", mem[0]);
+            //fprintf(out,"%02x\n", mem[0]);
+            //printf("%02x\n", mem[0]);
             break;
         }
         fprintf(out,"%02x\n", mem[0]);
+        printf("%02x\n", mem[0]);
+    }
+    while(!feof(in2)) {
+        if (fread(mem,1,1,in2) != 1) {
+            //fprintf(out,"%02x\n", mem[0]);
+            //printf("%02x\n", mem[0]);
+            break;
+        }
+        fprintf(out,"%02x\n", mem[0]);
+        printf("%02x\n", mem[0]);
     }
     fclose(in);
+    fclose(in2);
     fclose(out);
 
 
