@@ -90,7 +90,8 @@ module cpu7(
    wire [`GRLEN-1:0]                 ifu_exu_pc_w;
    wire [`GRLEN-1:0]                 ifu_exu_pc_e;
 
-
+   wire                              exu_ifu_stall_req;
+   
    
    // Cache Pipeline Bus
    wire               data_req       ;
@@ -155,7 +156,9 @@ module cpu7(
       .ifu_exu_c_d             (ifu_exu_c_d          ),
 
       .ifu_exu_pc_w            (ifu_exu_pc_w         ),
-      .ifu_exu_pc_e            (ifu_exu_pc_e         )
+      .ifu_exu_pc_e            (ifu_exu_pc_e         ),
+
+      .exu_ifu_stall_req       (exu_ifu_stall_req    )
       );
 
 
@@ -208,7 +211,7 @@ module cpu7(
       .data_cancel_ex2         (data_cancel_ex2      ),
       .data_req_empty          (data_req_empty       ),
       
-      
+      .exu_ifu_stall_req       (exu_ifu_stall_req    ),
 
       .debug0_wb_pc            (debug0_wb_pc         ),
       .debug0_wb_rf_wen        (debug0_wb_rf_wen     ),

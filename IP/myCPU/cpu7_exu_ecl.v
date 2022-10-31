@@ -39,7 +39,7 @@ module cpu7_exu_ecl(
    input  [4:0]                         lsu_ecl_rd_m,
    input                                lsu_ecl_wen_m,
 
-   
+   output                               exu_ifu_stall_req,
    
    output [`GRLEN-1:0]                  ecl_irf_rd_data_w,
    output                               ecl_irf_wen_w,
@@ -377,4 +377,21 @@ module cpu7_exu_ecl(
 
    assign ecl_irf_rd_data_w = rd_data_w;
 
+
+
+   // lsu stall request
+
+   wire lsu_stall_req;
+   wire lsu_stall_req_next;
+
+   assign lsu_stall_req_next =  (lsu_dispatch_d) | (lsu_stall_req & ~lsu_ecl_rdata_valid_m); 
+   
+   dffr_s #(1) lsu_stall_req_reg (
+      .din (lsu_stall_req_next),
+      .clk (clk),
+      .q   (lsu_stall_req),
+      .se(), .si(), .so(), .rst (~resetn));
+
+   assign exu_ifu_stall_req = lsu_stall_req_next;
+   
 endmodule // cpu7_exu_ecl

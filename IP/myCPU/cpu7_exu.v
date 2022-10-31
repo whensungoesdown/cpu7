@@ -46,6 +46,8 @@ module cpu7_exu(
    output                               data_cancel,
    output                               data_cancel_ex2,
    input                                data_req_empty,
+
+   output                               exu_ifu_stall_req,
    
    //debug interface
    output [`GRLEN-1:0]                  debug0_wb_pc,
@@ -184,6 +186,7 @@ module cpu7_exu(
       .lsu_ecl_rd_m             (lsu_ecl_rd_m        ),
       .lsu_ecl_wen_m            (lsu_ecl_wen_m       ),
 
+      .exu_ifu_stall_req        (exu_ifu_stall_req   ),
 
       .ecl_irf_rd_data_w        (ecl_irf_rd_data_w   ),
       .ecl_irf_rd_w             (ecl_irf_rd_w        ),

@@ -31,7 +31,9 @@ module cpu7_ifu_fdp(
    output wire [29 :0]                fdp_dec_target ,
    
    output wire [`GRLEN-1:0]           ifu_exu_pc_w   ,
-   output wire [`GRLEN-1:0]           ifu_exu_pc_e
+   output wire [`GRLEN-1:0]           ifu_exu_pc_e   ,
+
+   input  wire                        exu_ifu_stall_req,
    );
 
 
@@ -68,7 +70,10 @@ module cpu7_ifu_fdp(
    assign fdp_dec_ex = inst_ex;
    assign fdp_dec_exccode = inst_exccode;
 
-   assign fdp_dec_valid = inst_valid;
+   // if exu ask ifu to stall, the pc_bf takes bc_f and the instruction passed
+   // down the pipe should be invalid
+   //assign fdp_dec_valid = inst_valid;
+   assign fdp_dec_valid = inst_valid & ~exu_ifu_stall_req;
 
 
    //===================================================
@@ -177,8 +182,11 @@ module cpu7_ifu_fdp(
 
    assign ifu_pcbf_sel_init_bf_l = ~reset;
    // use inst_valid instead of inst_addr_ok, should name it fcl_fdp_pcbf_sel_old_l_bf
-   assign ifu_pcbf_sel_old_bf_l = inst_valid || reset || br_cancel;
-   assign ifu_pcbf_sel_pcinc_bf_l = ~(inst_valid && ~br_cancel);  /// ??? br_cancel never comes along with inst_valid, br_cancel_e
+   //assign ifu_pcbf_sel_old_bf_l = inst_valid || reset || br_cancel;
+   assign ifu_pcbf_sel_old_bf_l = (inst_valid || reset || br_cancel) & (~exu_ifu_stall_req);
+   
+   //assign ifu_pcbf_sel_pcinc_bf_l = ~(inst_valid && ~br_cancel);  /// ??? br_cancel never comes along with inst_valid, br_cancel_e
+   assign ifu_pcbf_sel_pcinc_bf_l = ~(inst_valid && ~br_cancel) | exu_ifu_stall_req;  /// ??? br_cancel never comes along with inst_valid, br_cancel_e
    //assign ifu_pcbf_sel_pcinc_bf_l = ~inst_valid;
    // br_cancel is a weird, when it is 1, the br_target is the next pc and branch is taken
    assign ifu_pcbf_sel_brpc_bf_l = ~br_cancel; 
