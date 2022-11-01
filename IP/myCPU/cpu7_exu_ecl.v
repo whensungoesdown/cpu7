@@ -384,6 +384,10 @@ module cpu7_exu_ecl(
    wire lsu_stall_req;
    wire lsu_stall_req_next;
 
+   //
+   // lsu_dispatch_d is the staring signal
+   // lsu_ecl_rdata_valid_m ends it
+   //
    assign lsu_stall_req_next =  (lsu_dispatch_d) | (lsu_stall_req & ~lsu_ecl_rdata_valid_m); 
    
    dffr_s #(1) lsu_stall_req_reg (

@@ -126,19 +126,23 @@ module cpu7_ifu_fdp(
    // 但后面其它如lsu，一定需要valid跟着流水线走下去，或者像opensparc里那样，有kill信号
    // 现在就先这样。。。
 
-   dff_s #(`GRLEN) pc_d_reg (
+
+   wire pc_f2d_en = ~exu_ifu_stall_req; 
+   
+   dffe_s #(`GRLEN) pc_f2d_reg (
       .din (pc_f),
       .clk (clock),
       .q   (pc_d),
+      .en  (pc_f2d_en), 
       .se(), .si(), .so());
    
-   dff_s #(`GRLEN) pc_e_reg (
+   dff_s #(`GRLEN) pc_d2e_reg (
       .din (pc_d),
       .clk (clock),
       .q   (pc_e),
       .se(), .si(), .so());
 
-   dff_s #(`GRLEN) pc_m_reg (
+   dff_s #(`GRLEN) pc_e2m_reg (
       .din (pc_e),
       .clk (clock),
       .q   (pc_m),
@@ -146,7 +150,7 @@ module cpu7_ifu_fdp(
 
    assign ifu_exu_pc_e = pc_e;
    
-   dff_s #(`GRLEN) pc_w_reg (
+   dff_s #(`GRLEN) pc_m2w_reg (
       .din (pc_m),
       .clk (clock),
       .q   (pc_w),
