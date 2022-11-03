@@ -89,11 +89,15 @@ module cpu7_ifu_fdp(
    // pc_before_fetch
    assign inst_addr = pc_bf;
 
+
+   // set pc_f to pc_bf when the fetch is success
+   //wire pc_bf2f_en = inst_valid;
    
    dff_s #(32) pc_reg (
       .din (pc_bf),
       .clk (clock),
       .q   (pc_f),
+//      .en  (pc_bf2f_en),
       .se(), .si(), .so());
 
 
@@ -127,7 +131,8 @@ module cpu7_ifu_fdp(
    // 现在就先这样。。。
 
 
-   wire pc_f2d_en = ~exu_ifu_stall_req; 
+   //wire pc_f2d_en = ~exu_ifu_stall_req; 
+   wire pc_f2d_en = fdp_dec_valid; 
    
    dffe_s #(`GRLEN) pc_f2d_reg (
       .din (pc_f),
