@@ -226,6 +226,7 @@ module cpu7_exu(
       .data_addr                (data_addr             ),
       .data_wr                  (data_wr               ),
       .data_wstrb               (data_wstrb            ),
+      .data_wdata               (data_wdata            ),
       .data_prefetch            (data_prefetch         ),
       .data_ll                  (data_ll               ),
       .data_sc                  (data_sc               ),

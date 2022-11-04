@@ -58,7 +58,6 @@ module lsu(
 
    //result 
    output                             lsu_addr_finish, // addr ok
-
    output [`GRLEN-1:0]                read_result_m,
    output                             lsu_rdata_valid_m, // data ok
    output [4:0]                       lsu_ecl_rd_m,
@@ -273,8 +272,8 @@ module lsu(
    wire res_valid;
    wire valid_in;
    
-   wire res_addr_ok;
-   wire addr_ok_in;
+   //wire res_addr_ok;
+   //wire addr_ok_in;
 
    wire lsu_recv;
 
@@ -389,18 +388,27 @@ module lsu(
    //end
 
    //assign addr_ok_in = (~resetn | change)? 1'd0 : data_addr_ok;
-   assign addr_ok_in = ~resetn ? 1'd0 : data_addr_ok;
+   //assign addr_ok_in = ~resetn ? 1'd0 : data_addr_ok;
    
-   dff_s #(1) res_addr_ok_reg (
-      .din (addr_ok_in),
+//   dff_s #(1) data_addr_ok_reg (
+//      .din (data_addr_ok),
+//      .clk (clk),
+//      .q   (lsu_recv),
+//      .se(), .si(), .so());
+   
+   //assign lsu_recv = res_addr_ok || data_addr_ok;
+
+
+   wire lsu_recv_next;
+
+   assign lsu_recv_next = (lsu_recv | data_addr_ok) & (~data_data_ok);
+
+   dff_s #(1) lsu_recv_reg (
+      .din (lsu_recv_next),
       .clk (clk),
-      .q   (res_addr_ok),
+      .q   (lsu_recv),
       .se(), .si(), .so());
    
-   assign lsu_recv = res_addr_ok || data_addr_ok;
-
-
-
    
    wire [4:0]    lsu_rd_m;
    
