@@ -13,11 +13,6 @@ module lsu(
    input [4:0]                        ecl_lsu_rd_e,
    input                              ecl_lsu_wen_e,
 
-   //input                              tlb_req,
-   //input                              data_exception,
-   //input   [`GRLEN-1:0]               data_badvaddr,
-   //input                              tlb_finish,
-
    //memory interface
    output                             data_req,
    output [`GRLEN-1:0]                data_addr,
@@ -28,26 +23,6 @@ module lsu(
    output                             data_ll,
    output                             data_sc,
    input                              data_addr_ok,
-
-   //result
-//   output                             lsu_ale,
-//   output                             lsu_adem,
-   //output                             lsu_recv,
-
-   //input [`LSOC1K_CSR_OUTPUT_BIT-1:0] csr_output,
-   //input                              change,
-   //input                              eret,
-   //input                              exception,
-   //output reg [`GRLEN-1:0]            badvaddr,
-   //output [`GRLEN-1:0]                badvaddr,
-
-
-   // lsu_s2
-
-   //input                              lsu_recv,
-   //input [ 2:0]                       lsu_shift,
-
-   //cached memory interface
    output                             data_recv,
    input                              data_scsucceed,
    input   [`GRLEN-1:0]               data_rdata,
@@ -63,10 +38,6 @@ module lsu(
    output [4:0]                       lsu_ecl_rd_m,
    output                             lsu_ecl_wen_m
 
-   //input                              change,
-   //input                              exception,
-   //output reg [`GRLEN-1:0]            badvaddr,
-   //output                             badvaddr_vali
    );
 
 
@@ -269,17 +240,7 @@ module lsu(
       .se(), .si(), .so());
 
 
-   wire res_valid;
-   wire valid_in;
-   
-   //wire res_addr_ok;
-   //wire addr_ok_in;
 
-   wire lsu_recv;
-
-
-   
-   assign data_recv  = lsu_recv && !res_valid;
 
    //result process
    wire [`GRLEN-1:0] data_rdata_input = data_rdata;
@@ -318,7 +279,7 @@ module lsu(
 
    
 
-   assign data_req      = valid && !res_valid; // res_valid, make sure lsu won't send request repeatedly
+   assign data_req      = valid; 
    assign data_addr     = addr;
    assign data_wr       = lsu_wr;
 
@@ -360,45 +321,13 @@ module lsu(
 
 
 
-   //always @(posedge clk) begin
-   //   if (rst || change)                                       res_valid <= 1'd0;
-   //   else if(data_addr_ok || lsu_except || exception || eret) res_valid <= valid;
-   //end
 
-   //assign valid_in = (~resetn | change) ? 1'd0 : (data_data_ok & valid);
-
-   // uty: test
-   //assign valid_in = ~resetn ? 1'd0 : (data_addr_ok & valid);
-   assign valid_in = 1'b0;
-      
-   dff_s #(1) res_valid_reg (
-      .din (valid_in),
-      .clk (clk),
-      .q   (res_valid),
-      .se(), .si(), .so());
+   assign lsu_addr_finish = data_addr_ok || (lsu_op == `LSOC1K_LSU_IDLE);
 
 
-   assign lsu_addr_finish = data_addr_ok || res_valid || (lsu_op == `LSOC1K_LSU_IDLE);
 
 
-   
-   //always @(posedge clk) begin
-   //   if (rst || change)    addr_ok_his <= 1'd0;
-   //   else if(data_addr_ok) addr_ok_his <= 1'd1;
-   //end
-
-   //assign addr_ok_in = (~resetn | change)? 1'd0 : data_addr_ok;
-   //assign addr_ok_in = ~resetn ? 1'd0 : data_addr_ok;
-   
-//   dff_s #(1) data_addr_ok_reg (
-//      .din (data_addr_ok),
-//      .clk (clk),
-//      .q   (lsu_recv),
-//      .se(), .si(), .so());
-   
-   //assign lsu_recv = res_addr_ok || data_addr_ok;
-
-
+   wire lsu_recv;
    wire lsu_recv_next;
 
    assign lsu_recv_next = (lsu_recv | data_addr_ok) & (~data_data_ok);
@@ -409,6 +338,9 @@ module lsu(
       .q   (lsu_recv),
       .se(), .si(), .so());
    
+   assign data_recv  = lsu_recv;
+   
+
    
    wire [4:0]    lsu_rd_m;
    
