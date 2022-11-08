@@ -7,23 +7,23 @@ module branch(
     input [`GRLEN-1:0]              branch_b,
     input [`LSOC1K_BRU_CODE_BIT-1:0] branch_op,
     input [`GRLEN-1:0]              branch_pc,
-    input [31:0]                    branch_inst,
-    input                           branch_taken,
-    input [`GRLEN-1:0]              branch_target,
+//    input [31:0]                    branch_inst,
+//    input                           branch_taken,
+//    input [`GRLEN-1:0]              branch_target,
     input [`GRLEN-1:0]              branch_offset,
-    input                           cancel_allow,
+//    input                           cancel_allow,
     // pc interface
-    output              bru_valid,
-    output              bru_cancel,
+//    output              bru_valid,
+//    output              bru_cancel,
     output [`GRLEN-1:0] bru_target,
     output              bru_taken,
-    output [`GRLEN-1:0] bru_link_pc,
-    output [`GRLEN-1:0] bru_pc
+//    output [`GRLEN-1:0] bru_link_pc,
+//    output [`GRLEN-1:0] bru_pc
 );
 
 //define
 wire take;
-wire cancel;
+//wire cancel;
 
 //BRANCHop decoder
 wire op_beqz  = branch_op == `LSOC1K_BRU_EQZ;
@@ -88,20 +88,22 @@ assign compare_unsigned = op_bgeu || op_bltu;
 
 assign compare_ltx_u = branch_a < branch_b;
 
-`ifdef LA64
-assign compare_ltx_s = (branch_a[63] && !branch_b[63]) || (compare_ltx_u && branch_a[63] == branch_b[63]);
-`elsif LA32
+//`ifdef LA64
+//assign compare_ltx_s = (branch_a[63] && !branch_b[63]) || (compare_ltx_u && branch_a[63] == branch_b[63]);
+//`elsif LA32
+//assign compare_ltx_s = (branch_a[31] && !branch_b[31]) || (compare_ltx_u && branch_a[31] == branch_b[31]);
+//`endif
 assign compare_ltx_s = (branch_a[31] && !branch_b[31]) || (compare_ltx_u && branch_a[31] == branch_b[31]);
-`endif
 
 assign cond_ltx = compare_unsigned ? compare_ltx_u : compare_ltx_s;
 assign cond_eqx = branch_a == branch_b;
 
-`ifdef LA64
-assign cond_seqz = !branch_a[63] &&!(|branch_a[62:0]);
-`elsif LA32
+//`ifdef LA64
+//assign cond_seqz = !branch_a[63] &&!(|branch_a[62:0]);
+//`elsif LA32
+//assign cond_seqz = !branch_a[31] &&!(|branch_a[30:0]);
+//`endif
 assign cond_seqz = !branch_a[31] &&!(|branch_a[30:0]);
-`endif
 assign cond_eqz  = from_s && cond_seqz;
 
 //overall condition
@@ -113,14 +115,16 @@ assign take =
     && (!need_ltx || cond_ltx)
     && (!need_gex ||!cond_ltx);
     
-assign cancel = need_any && take!=branch_taken || need_compute && bru_target!=branch_target;
+//assign cancel = need_any && take!=branch_taken || need_compute && bru_target!=branch_target;
 
 // jump target calculate
-`ifdef LA64
-assign target_next = {branch_pc[`GRLEN-1:2]+62'd1,2'b00};
-`elsif LA32
+//`ifdef LA64
+//assign target_next = {branch_pc[`GRLEN-1:2]+62'd1,2'b00};
+//`elsif LA32
+//assign target_next = {branch_pc[`GRLEN-1:2]+30'd1,2'b00};
+//`endif
 assign target_next = {branch_pc[`GRLEN-1:2]+30'd1,2'b00};
-`endif
+
 wire [`GRLEN-1:0] target_true = {branch_pc[`GRLEN-1:2],2'b00} + branch_offset;
 assign target_jr   = branch_a + branch_offset;
 
@@ -129,10 +133,10 @@ assign bru_target =
     // ({64{!op_jirl && take}} & branch_target)
     |({`GRLEN{!op_jirl &&!take}} & target_next)
     |({`GRLEN{op_jirl}} & target_jr );
-assign bru_cancel = cancel && cancel_allow;
-assign bru_valid = branch_valid;
+//assign bru_cancel = cancel && cancel_allow;
+//assign bru_valid = branch_valid;
 assign bru_taken = take;
-assign bru_link_pc = target_next;
-assign bru_pc = branch_pc;
+//assign bru_link_pc = target_next;
+//assign bru_pc = branch_pc;
 
 endmodule

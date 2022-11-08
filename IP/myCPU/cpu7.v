@@ -86,11 +86,15 @@ module cpu7(
 
    wire [31:0]                       ifu_exu_imm_shifted_d;
    wire [`GRLEN-1:0]                 ifu_exu_c_d;
+   wire [`GRLEN-1:0]                 ifu_exu_br_offs;
 
    wire [`GRLEN-1:0]                 ifu_exu_pc_w;
    wire [`GRLEN-1:0]                 ifu_exu_pc_e;
 
    wire                              exu_ifu_stall_req;
+
+   wire [`GRLEN-1:0]                 exu_ifu_brpc_e;
+   wire                              exu_ifu_br_taken_e;
    
    
    // Cache Pipeline Bus
@@ -136,8 +140,8 @@ module cpu7(
       .inst_uncache            (inst_uncache       ),
       .inst_valid              (inst_valid         ),
 
-      .exu_ifu_br_cancel       (1'b0               ), // test, no branch now
-      .exu_ifu_br_target       (31'b0              ),
+      .exu_ifu_br_cancel       (exu_ifu_br_taken_e ), // BUG, need to change name
+      .exu_ifu_br_target       (exu_ifu_brpc_e     ),
 
       // now only have one port
       .ifu_exu_valid_d         (ifu_exu_valid_d      ),
@@ -154,11 +158,15 @@ module cpu7(
 
       .ifu_exu_imm_shifted_d   (ifu_exu_imm_shifted_d),
       .ifu_exu_c_d             (ifu_exu_c_d          ),
+      .ifu_exu_br_offs         (ifu_exu_br_offs      ),
 
       .ifu_exu_pc_w            (ifu_exu_pc_w         ),
       .ifu_exu_pc_e            (ifu_exu_pc_e         ),
 
       .exu_ifu_stall_req       (exu_ifu_stall_req    )
+
+      //.exu_ifu_brpc_e          (exu_ifu_brpc_e       ),
+      //.exu_ifu_br_taken_e      (exu_ifu_br_taken_e   )
       );
 
 
@@ -184,6 +192,8 @@ module cpu7(
 
       .ifu_exu_imm_shifted_d   (ifu_exu_imm_shifted_d),
       .ifu_exu_c_d             (ifu_exu_c_d          ),
+      .ifu_exu_br_offs         (ifu_exu_br_offs      ),
+      
       .ifu_exu_pc_w            (ifu_exu_pc_w         ),
       .ifu_exu_pc_e            (ifu_exu_pc_e         ),
 
@@ -212,6 +222,9 @@ module cpu7(
       .data_req_empty          (data_req_empty       ),
       
       .exu_ifu_stall_req       (exu_ifu_stall_req    ),
+
+      .exu_ifu_brpc_e          (exu_ifu_brpc_e       ),
+      .exu_ifu_br_taken_e      (exu_ifu_br_taken_e   ),
 
       .debug0_wb_pc            (debug0_wb_pc         ),
       .debug0_wb_rf_wen        (debug0_wb_rf_wen     ),

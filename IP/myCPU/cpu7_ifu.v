@@ -37,6 +37,7 @@ module cpu7_ifu(
 
    output wire [31:0]                       ifu_exu_imm_shifted_d,
    output wire [`GRLEN-1:0]                 ifu_exu_c_d,
+   output wire [`GRLEN-1:0]                 ifu_exu_br_offs,
 
    output wire [`GRLEN-1:0]                 ifu_exu_pc_w,
    output wire [`GRLEN-1:0]                 ifu_exu_pc_e,
@@ -125,7 +126,8 @@ module cpu7_ifu(
       .ifu_exu_inst_d        (ifu_exu_inst_d        ),
       .ifu_exu_op_d          (ifu_exu_op_d          ),
       .ifu_exu_imm_shifted_d (ifu_exu_imm_shifted_d ),
-      .ifu_exu_c_d           (ifu_exu_c_d           )
+      .ifu_exu_c_d           (ifu_exu_c_d           ),
+      .ifu_exu_br_offs       (ifu_exu_br_offs       )
       );
    
 endmodule // cpu7_ifu

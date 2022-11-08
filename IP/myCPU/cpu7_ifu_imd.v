@@ -5,7 +5,8 @@ module cpu7_ifu_imd(
    input  [31:0]                        ifu_exu_inst_d,
    input  [`LSOC1K_DECODE_RES_BIT-1:0]  ifu_exu_op_d,
    output [31:0]                        ifu_exu_imm_shifted_d,
-   output [`GRLEN-1:0]                  ifu_exu_c_d
+   output [`GRLEN-1:0]                  ifu_exu_c_d,
+   output [`GRLEN-1:0]                  ifu_exu_br_offs
    );
 
    //immediate operater prepare
@@ -46,5 +47,16 @@ module cpu7_ifu_imd(
 			(ifu_exu_op_d[`LSOC1K_ALU_CODE] == `LSOC1K_ALU_EXT || ifu_exu_op_d[`LSOC1K_ALU_CODE] == `LSOC1K_ALU_INS) ? {20'd0,`GET_MSLSBD(ifu_exu_inst_d)} :
 			(ifu_exu_op_d[`LSOC1K_ALU_CODE] == `LSOC1K_ALU_ROT) ? port0_imm :
 			port0_imm;
+
+
+   wire [15:0] port0_offset16 = `GET_OFFSET16(ifu_exu_inst_d);
+   wire [20:0] port0_offset21 = `GET_OFFSET21(ifu_exu_inst_d);
+   wire [25:0] port0_offset26 = `GET_OFFSET26(ifu_exu_inst_d);
+   
+   wire [31:0] port0_offset = ifu_exu_op_d[`LSOC1K_RD_READ    ] ? {{14{port0_offset16[15]}},port0_offset16,2'b0} :
+	                      ifu_exu_op_d[`LSOC1K_HIGH_TARGET] ? {{ 4{port0_offset26[25]}},port0_offset26,2'b0} :
+	                                                          {{ 9{port0_offset21[20]}},port0_offset21,2'b0} ;
+
+   assign ifu_exu_br_offs = port0_offset;
    
 endmodule // cpu7_ifu_imd

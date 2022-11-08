@@ -19,6 +19,7 @@ module cpu7_exu(
 
    input  [31:0]                        ifu_exu_imm_shifted_d,
    input  [`GRLEN-1:0]                  ifu_exu_c_d,
+   input  [`GRLEN-1:0]                  ifu_exu_br_offs,
 
    input  [`GRLEN-1:0]                  ifu_exu_pc_w,
    input  [`GRLEN-1:0]                  ifu_exu_pc_e,
@@ -48,6 +49,8 @@ module cpu7_exu(
    input                                data_req_empty,
 
    output                               exu_ifu_stall_req,
+   output [`GRLEN-1:0]                  exu_ifu_brpc_e,
+   output                               exu_ifu_br_taken_e,
    
    //debug interface
    output [`GRLEN-1:0]                  debug0_wb_pc,
@@ -89,6 +92,17 @@ module cpu7_exu(
    wire [4:0]                           ecl_irf_rd_w; // derived from ifu_exu_rf_target_d
    wire                                 ecl_irf_wen_w;
 
+
+   // bru
+   wire                                 ecl_bru_valid_e;
+   wire [`LSOC1K_BRU_CODE_BIT-1:0]      ecl_bru_op_e;
+   wire [`GRLEN-1:0]                    ecl_bru_a_e;       
+   wire [`GRLEN-1:0]                    ecl_bru_b_e;
+   wire [`GRLEN-1:0]                    ecl_bru_pc_e;
+   wire [`GRLEN-1:0]                    ecl_bru_offset_e;
+
+   wire [`GRLEN-1:0]                    bru_ecl_brpc_e;    
+   wire                                 bru_ecl_br_taken_e;  
 
 
    wire [`GRLEN-1:0] dumb_rdata1_0;
@@ -157,6 +171,7 @@ module cpu7_exu(
       .ifu_exu_rf_target_d      (ifu_exu_rf_target_d ),
       .ifu_exu_imm_shifted_d    (ifu_exu_imm_shifted_d),
       .ifu_exu_c_d              (ifu_exu_c_d         ),
+      .ifu_exu_br_offs          (ifu_exu_br_offs     ),
       .irf_ecl_rs1_data_d       (irf_ecl_rs1_data_d  ),
       .irf_ecl_rs2_data_d       (irf_ecl_rs2_data_d  ),
 
@@ -186,7 +201,20 @@ module cpu7_exu(
       .lsu_ecl_rd_m             (lsu_ecl_rd_m        ),
       .lsu_ecl_wen_m            (lsu_ecl_wen_m       ),
 
+      // bru
+      .ecl_bru_valid_e          (ecl_bru_valid_e     ),
+      .ecl_bru_op_e             (ecl_bru_op_e        ),
+      .ecl_bru_a_e              (ecl_bru_a_e         ),
+      .ecl_bru_b_e              (ecl_bru_b_e         ),
+      .ecl_bru_pc_e             (ecl_bru_pc_e        ),
+      .ecl_bru_offset_e         (ecl_bru_offset_e    ),
+      .bru_ecl_brpc_e           (bru_ecl_brpc_e      ),
+      .bru_ecl_br_taken_e       (bru_ecl_br_taken_e  ),
+
       .exu_ifu_stall_req        (exu_ifu_stall_req   ),
+
+      .exu_ifu_brpc_e           (exu_ifu_brpc_e      ),
+      .exu_ifu_br_taken_e       (exu_ifu_br_taken_e  ),   
 
       .ecl_irf_rd_data_w        (ecl_irf_rd_data_w   ),
       .ecl_irf_rd_w             (ecl_irf_rd_w        ),
@@ -252,6 +280,25 @@ module cpu7_exu(
    assign data_pc = ifu_exu_pc_e;
    assign data_cancel = 1'b0;
    assign data_cancel_ex2 = 1'b0;
+
+
+   //
+   // BRU
+   //
+   
+   branch bru (
+      .branch_valid             (ecl_bru_valid_e        ),
+      .branch_op                (ecl_bru_op_e           ),
+      .branch_a                 (ecl_bru_a_e            ),
+      .branch_b                 (ecl_bru_b_e            ),
+      .branch_pc                (ecl_bru_pc_e           ),
+      .branch_offset            (ecl_bru_offset_e       ),
+
+      .bru_target               (bru_ecl_brpc_e         ),
+      .bru_taken                (bru_ecl_br_taken_e     )
+      ); 
+   
+   
    
    // wrong test
    assign debug0_wb_pc = ifu_exu_pc_w;

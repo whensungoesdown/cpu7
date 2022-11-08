@@ -33,7 +33,7 @@ module cpu7_ifu_fdp(
    output wire [`GRLEN-1:0]           ifu_exu_pc_w   ,
    output wire [`GRLEN-1:0]           ifu_exu_pc_e   ,
 
-   input  wire                        exu_ifu_stall_req,
+   input  wire                        exu_ifu_stall_req
    );
 
 
@@ -73,7 +73,7 @@ module cpu7_ifu_fdp(
    // if exu ask ifu to stall, the pc_bf takes bc_f and the instruction passed
    // down the pipe should be invalid
    //assign fdp_dec_valid = inst_valid;
-   assign fdp_dec_valid = inst_valid & ~exu_ifu_stall_req;
+   assign fdp_dec_valid = inst_valid & ~exu_ifu_stall_req & ~br_cancel; // pc_f shoudl not be passed to pc_d if a branch is taken at _e.
 
 
    //===================================================

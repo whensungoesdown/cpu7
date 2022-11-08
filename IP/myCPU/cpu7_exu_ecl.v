@@ -12,6 +12,7 @@ module cpu7_exu_ecl(
    input  [4:0]                         ifu_exu_rf_target_d,
    input  [31:0]                        ifu_exu_imm_shifted_d,
    input  [`GRLEN-1:0]                  ifu_exu_c_d,
+   input  [`GRLEN-1:0]                  ifu_exu_br_offs,
    input  [`GRLEN-1:0]                  irf_ecl_rs1_data_d,
    input  [`GRLEN-1:0]                  irf_ecl_rs2_data_d,
 
@@ -39,8 +40,23 @@ module cpu7_exu_ecl(
    input  [4:0]                         lsu_ecl_rd_m,
    input                                lsu_ecl_wen_m,
 
+   //bru
+   output                               ecl_bru_valid_e,
+   output [`LSOC1K_BRU_CODE_BIT-1:0]    ecl_bru_op_e,
+   output [`GRLEN-1:0]                  ecl_bru_a_e,
+   output [`GRLEN-1:0]                  ecl_bru_b_e,
+   output [`GRLEN-1:0]                  ecl_bru_pc_e,
+   output [`GRLEN-1:0]                  ecl_bru_offset_e,
+
+   input  [`GRLEN-1:0]                  bru_ecl_brpc_e,
+   input                                bru_ecl_br_taken_e,
+
+
    output                               exu_ifu_stall_req,
    
+   output [`GRLEN-1:0]                  exu_ifu_brpc_e,
+   output                               exu_ifu_br_taken_e,
+
    output [`GRLEN-1:0]                  ecl_irf_rd_data_w,
    output                               ecl_irf_wen_w,
    output [4:0]                         ecl_irf_rd_w
@@ -70,14 +86,22 @@ module cpu7_exu_ecl(
    wire none_valid_e;
 
 
+   wire inst_vld_d;
+   wire kill_d;
+  
+ 
+   assign kill_d = ecl_bru_valid_e & bru_ecl_br_taken_e; // if branch is taken, kill the instruction at the pipeline _d stage.
+   assign inst_vld_d = ifu_exu_valid_d & (~kill_d);
 
+
+   
    //main
-   assign alu_dispatch_d  = !ifu_exu_op_d[`LSOC1K_LSU_RELATED] && !ifu_exu_op_d[`LSOC1K_BRU_RELATED] && !ifu_exu_op_d[`LSOC1K_MUL_RELATED] && !ifu_exu_op_d[`LSOC1K_DIV_RELATED] && !ifu_exu_op_d[`LSOC1K_CSR_RELATED];// && !port0_exception; // alu0 is binded to port0
-   assign lsu_dispatch_d  = ifu_exu_op_d[`LSOC1K_LSU_RELATED] && ifu_exu_valid_d; // && !port0_exception;
-   assign bru_dispatch_d  = ifu_exu_op_d[`LSOC1K_BRU_RELATED] && ifu_exu_valid_d; // && !port0_exception;
-   assign mul_dispatch_d  = ifu_exu_op_d[`LSOC1K_MUL_RELATED] && ifu_exu_valid_d; // && !port0_exception;
-   assign div_dispatch_d  = ifu_exu_op_d[`LSOC1K_DIV_RELATED] && ifu_exu_valid_d; // && !port0_exception;
-   assign none_dispatch_d = (ifu_exu_op_d[`LSOC1K_CSR_RELATED] || ifu_exu_op_d[`LSOC1K_TLB_RELATED] || ifu_exu_op_d[`LSOC1K_CACHE_RELATED]) && ifu_exu_valid_d; // || port0_exception ;
+   assign alu_dispatch_d  = !ifu_exu_op_d[`LSOC1K_LSU_RELATED] && !ifu_exu_op_d[`LSOC1K_BRU_RELATED] && !ifu_exu_op_d[`LSOC1K_MUL_RELATED] && !ifu_exu_op_d[`LSOC1K_DIV_RELATED] && !ifu_exu_op_d[`LSOC1K_CSR_RELATED] && inst_vld_d; // && !port0_exception; // alu0 is binded to port0
+   assign lsu_dispatch_d  = ifu_exu_op_d[`LSOC1K_LSU_RELATED] && inst_vld_d; // && !port0_exception;
+   assign bru_dispatch_d  = ifu_exu_op_d[`LSOC1K_BRU_RELATED] && inst_vld_d; // && !port0_exception;
+   assign mul_dispatch_d  = ifu_exu_op_d[`LSOC1K_MUL_RELATED] && inst_vld_d; // && !port0_exception;
+   assign div_dispatch_d  = ifu_exu_op_d[`LSOC1K_DIV_RELATED] && inst_vld_d; // && !port0_exception;
+   assign none_dispatch_d = (ifu_exu_op_d[`LSOC1K_CSR_RELATED] || ifu_exu_op_d[`LSOC1K_TLB_RELATED] || ifu_exu_op_d[`LSOC1K_CACHE_RELATED]) && inst_vld_d; // || port0_exception ;
 
    assign sr_ur_d         =  alu_dispatch_d   ? `EX_ALU0  :
 			     bru_dispatch_d   ? `EX_BRU   :
@@ -87,7 +111,6 @@ module cpu7_exu_ecl(
 			     div_dispatch_d   ? `EX_DIV   :
 			     none_dispatch_d  ? `EX_NONE0 :
 			     `EX_SR'd0 ;
-
 
    
 
@@ -173,7 +196,7 @@ module cpu7_exu_ecl(
    // LSU
    //
 
-   assign lsu_valid_d = lsu_dispatch_d & ifu_exu_valid_d;
+   assign lsu_valid_d = lsu_dispatch_d; // & ifu_exu_valid_d; 
    
    dff_s #(1) lsu_valid_reg (
       .din (lsu_valid_d),
@@ -275,6 +298,105 @@ module cpu7_exu_ecl(
 
    
 
+   //
+   // BRU
+   //
+
+   wire bru_valid_d;
+   wire bru_valid_e;
+
+   assign bru_valid_d = bru_dispatch_d; // & ifu_exu_valid_d;
+
+   dff_s #(1) bru_valid_d2e_reg (
+      .din (bru_valid_d),
+      .clk (clk),
+      .q   (bru_valid_e),
+      .se(), .si(), .so());
+
+   assign ecl_bru_valid_e = bru_valid_e;
+
+
+
+   wire [`LSOC1K_BRU_CODE_BIT-1:0] bru_op_d;
+   wire [`LSOC1K_BRU_CODE_BIT-1:0] bru_op_e;
+
+   assign bru_op_d = ifu_exu_op_d[`LSOC1K_BRU_CODE];
+   
+   dff_s #(`LSOC1K_BRU_CODE_BIT) bru_op_d2e_reg (
+      .din (bru_op_d),
+      .clk (clk),
+      .q   (bru_op_e),
+      .se(), .si(), .so());
+
+   assign ecl_bru_op_e = bru_op_e;
+
+   
+   wire [`GRLEN-1:0] bru_a_d;
+   wire [`GRLEN-1:0] bru_a_e;
+
+   assign bru_a_d = irf_ecl_rs1_data_d;
+   
+   dff_s #(`GRLEN) bru_a_d2e_reg (
+      .din (bru_a_d),
+      .clk (clk),
+      .q   (bru_a_e),
+      .se(), .si(), .so());
+   
+   assign ecl_bru_a_e = bru_a_e;
+
+
+   wire [`GRLEN-1:0] bru_b_d;
+   wire [`GRLEN-1:0] bru_b_e;
+
+   assign bru_b_d = irf_ecl_rs2_data_d;
+
+   dff_s #(`GRLEN) bru_b_d2e_reg (
+      .din (bru_b_d),
+      .clk (clk),
+      .q   (bru_b_e),
+      .se(), .si(), .so());
+
+   assign ecl_bru_b_e = bru_b_e;
+
+
+   
+   wire [`GRLEN-1:0] bru_pc_d;
+   wire [`GRLEN-1:0] bru_pc_e;
+
+   assign bru_pc_d = ifu_exu_pc_d;
+   
+   dff_s #(`GRLEN) bru_pc_d2e_reg (
+      .din (bru_pc_d),
+      .clk (clk),
+      .q   (bru_pc_e),
+      .se(), .si(), .so());
+
+   assign ecl_bru_pc_e = bru_pc_e;
+
+   
+
+   wire [`GRLEN-1:0] bru_offset_d;
+   wire [`GRLEN-1:0] bru_offset_e;
+
+   assign bru_offset_d = ifu_exu_br_offs;
+
+   dff_s #(`GRLEN) bru_offset_d2e_reg (
+      .din (bru_offset_d),
+      .clk (clk),
+      .q   (bru_offset_e),
+      .se(), .si(), .so());
+ 
+   assign ecl_bru_offset_e = bru_offset_e;
+  
+
+   assign exu_ifu_brpc_e = bru_ecl_brpc_e;
+   assign exu_ifu_br_taken_e = ecl_bru_valid_e & bru_ecl_br_taken_e;
+   
+
+   //
+   // ALU
+   //
+
    ////
    //  rd rd_data wen
    //  only for ALU instructions
@@ -320,7 +442,7 @@ module cpu7_exu_ecl(
    //
    // wen, only for ALU instructions
    //
-   assign rf_wen_d = ifu_exu_rf_wen_d & ifu_exu_valid_d & alu_dispatch_d;
+   assign rf_wen_d = ifu_exu_rf_wen_d & alu_dispatch_d;
    
    dff_s #(1) wen_d2e_reg (
       .din (rf_wen_d),
