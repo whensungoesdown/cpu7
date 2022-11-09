@@ -18,7 +18,7 @@ module cpu7_ifu(
    input  wire           inst_uncache,
    input  wire           inst_valid,
 
-   input  wire           exu_ifu_br_cancel,
+   input  wire           exu_ifu_br_taken,
    input  wire [31:0]    exu_ifu_br_target,
 
    
@@ -60,7 +60,7 @@ module cpu7_ifu(
 
       .pc_init          (pc_init           ),
 
-      .br_cancel        (exu_ifu_br_cancel ),
+      .br_taken         (exu_ifu_br_taken  ),
       .br_target        (exu_ifu_br_target ),
 
       .inst_req         (inst_req          ),

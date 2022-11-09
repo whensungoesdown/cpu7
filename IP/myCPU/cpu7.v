@@ -140,7 +140,7 @@ module cpu7(
       .inst_uncache            (inst_uncache       ),
       .inst_valid              (inst_valid         ),
 
-      .exu_ifu_br_cancel       (exu_ifu_br_taken_e ), // BUG, need to change name
+      .exu_ifu_br_taken        (exu_ifu_br_taken_e ), // BUG, need to change name
       .exu_ifu_br_target       (exu_ifu_brpc_e     ),
 
       // now only have one port
