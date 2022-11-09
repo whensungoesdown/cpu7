@@ -185,8 +185,8 @@ module cpu7_ifu_fdp(
 
    assign inst_req = ~reset;
 
-   // uty: test
-   // try inst_cancel
+   // when branch taken, inst_cancel need to be signal
+   // so that the new target instruction can be fetched instead of the one previously requested
    assign inst_cancel = br_taken;
 
    assign ifu_pcbf_sel_init_bf_l = ~reset;
