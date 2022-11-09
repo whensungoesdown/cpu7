@@ -50,6 +50,8 @@ module cpu7_exu_ecl(
 
    input  [`GRLEN-1:0]                  bru_ecl_brpc_e,
    input                                bru_ecl_br_taken_e,
+   input  [`GRLEN-1:0]                  bru_byp_link_pc_e,
+   input                                bru_ecl_wen_e,
 
 
    output                               exu_ifu_stall_req,
@@ -393,6 +395,33 @@ module cpu7_exu_ecl(
    assign exu_ifu_br_taken_e = ecl_bru_valid_e & bru_ecl_br_taken_e;
    
 
+   
+   wire [`GRLEN-1:0] bru_link_pc_e;
+   wire [`GRLEN-1:0] bru_link_pc_m;
+
+   assign bru_link_pc_e = bru_byp_link_pc_e;
+   
+   dff_s #(`GRLEN) bru_link_pc_e2m_reg (
+      .din (bru_link_pc_e),
+      .clk (clk),
+      .q   (bru_link_pc_m),
+      .se(), .si(), .so());
+
+
+   wire bru_wen_e;
+   wire bru_wen_m;
+
+   assign bru_wen_e = bru_ecl_wen_e;
+   
+   dff_s #(1) bru_wen_e2m_reg (
+      .din (bru_wen_e),
+      .clk (clk),
+      .q   (bru_wen_m),
+      .se(), .si(), .so());
+   
+   
+
+   
    //
    // ALU
    //
@@ -456,12 +485,15 @@ module cpu7_exu_ecl(
       .q   (rf_wen_m),
       .se(), .si(), .so());
    
-   dp_mux2es #(1) wen_mux(
-      .dout (wen_m),
-      .in0  (rf_wen_m),
-      .in1  (lsu_ecl_wen_m),
-      .sel  (lsu_ecl_rdata_valid_m));
+//   dp_mux2es #(1) wen_mux(
+//      .dout (wen_m),
+//      .in0  (rf_wen_m),
+//      .in1  (lsu_ecl_wen_m),
+//      .sel  (lsu_ecl_rdata_valid_m));
    
+
+   // set the wen if any module claims it
+   assign wen_m = rf_wen_m | (lsu_ecl_wen_m & lsu_ecl_rdata_valid_m) | bru_wen_m;
    
    dff_s #(1) wen_m2w_reg (
       .din (wen_m),
@@ -485,11 +517,28 @@ module cpu7_exu_ecl(
    wire [`GRLEN-1:0] rd_data_w;
    
 
-   dp_mux2es #(`GRLEN) rd_data_mux(
-      .dout (rd_data_m),
-      .in0  (alu_ecl_res_m),
-      .in1  (lsu_ecl_rdata_m),
-      .sel  (lsu_ecl_rdata_valid_m));
+//   dp_mux2es #(`GRLEN) rd_data_mux(
+//      .dout (rd_data_m),
+//      .in0  (alu_ecl_res_m),
+//      .in1  (lsu_ecl_rdata_m),
+//      .sel  (lsu_ecl_rdata_valid_m));
+
+   wire rddata_sel_alu_res_m_l;
+   wire rddata_sel_lsu_res_m_l;
+   wire rddata_sel_bru_res_m_l;
+
+   assign rddata_sel_alu_res_m_l = (lsu_ecl_rdata_valid_m | bru_wen_m); // default is alu resulst if no other module claims it
+   assign rddata_sel_lsu_res_m_l = ~lsu_ecl_rdata_valid_m;
+   assign rddata_sel_bru_res_m_l = ~bru_wen_m;
+
+   dp_mux3ds #(`GRLEN) rd_data_mux(.dout  (rd_data_m),
+                          .in0   (alu_ecl_res_m),
+                          .in1   (lsu_ecl_rdata_m),
+                          .in2   (bru_link_pc_m),
+                          .sel0_l (rddata_sel_alu_res_m_l),
+                          .sel1_l (rddata_sel_lsu_res_m_l),
+                          .sel2_l (rddata_sel_bru_res_m_l));
+   
    
    dff_s #(`GRLEN) rd_data_w_reg (
       .din (rd_data_m),

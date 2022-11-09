@@ -103,6 +103,8 @@ module cpu7_exu(
 
    wire [`GRLEN-1:0]                    bru_ecl_brpc_e;    
    wire                                 bru_ecl_br_taken_e;  
+   wire [`GRLEN-1:0]                    bru_byp_link_pc_e;
+   wire                                 bru_ecl_wen_e;
 
 
    wire [`GRLEN-1:0] dumb_rdata1_0;
@@ -210,6 +212,9 @@ module cpu7_exu(
       .ecl_bru_offset_e         (ecl_bru_offset_e    ),
       .bru_ecl_brpc_e           (bru_ecl_brpc_e      ),
       .bru_ecl_br_taken_e       (bru_ecl_br_taken_e  ),
+      .bru_byp_link_pc_e        (bru_byp_link_pc_e   ), // byp, mark it for later a separate byp module
+      .bru_ecl_wen_e            (bru_ecl_wen_e       ),
+
 
       .exu_ifu_stall_req        (exu_ifu_stall_req   ),
 
@@ -295,7 +300,9 @@ module cpu7_exu(
       .branch_offset            (ecl_bru_offset_e       ),
 
       .bru_target               (bru_ecl_brpc_e         ),
-      .bru_taken                (bru_ecl_br_taken_e     )
+      .bru_taken                (bru_ecl_br_taken_e     ),
+      .bru_link_pc              (bru_byp_link_pc_e      ),
+      .bru_wen                  (bru_ecl_wen_e          )
       ); 
    
    

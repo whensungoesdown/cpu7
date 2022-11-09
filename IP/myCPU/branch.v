@@ -2,24 +2,25 @@
 
 // ALU module
 module branch(
-    input                           branch_valid,
-    input [`GRLEN-1:0]              branch_a,
-    input [`GRLEN-1:0]              branch_b,
-    input [`LSOC1K_BRU_CODE_BIT-1:0] branch_op,
-    input [`GRLEN-1:0]              branch_pc,
-//    input [31:0]                    branch_inst,
-//    input                           branch_taken,
-//    input [`GRLEN-1:0]              branch_target,
-    input [`GRLEN-1:0]              branch_offset,
-//    input                           cancel_allow,
-    // pc interface
-//    output              bru_valid,
-//    output              bru_cancel,
-    output [`GRLEN-1:0] bru_target,
-    output              bru_taken,
-//    output [`GRLEN-1:0] bru_link_pc,
-//    output [`GRLEN-1:0] bru_pc
-);
+   input                           branch_valid,
+   input [`GRLEN-1:0]              branch_a,
+   input [`GRLEN-1:0]              branch_b,
+   input [`LSOC1K_BRU_CODE_BIT-1:0] branch_op,
+   input [`GRLEN-1:0]              branch_pc,
+   //    input [31:0]                    branch_inst,
+   //    input                           branch_taken,
+   //    input [`GRLEN-1:0]              branch_target,
+   input [`GRLEN-1:0]              branch_offset,
+   //    input                           cancel_allow,
+   // pc interface
+   //    output              bru_valid,
+   //    output              bru_cancel,
+   output [`GRLEN-1:0] bru_target,
+   output              bru_taken,
+   output [`GRLEN-1:0] bru_link_pc,
+   output              bru_wen
+   //    output [`GRLEN-1:0] bru_pc
+   );
 
 //define
 wire take;
@@ -123,20 +124,22 @@ assign take =
 //`elsif LA32
 //assign target_next = {branch_pc[`GRLEN-1:2]+30'd1,2'b00};
 //`endif
-assign target_next = {branch_pc[`GRLEN-1:2]+30'd1,2'b00};
+   assign target_next = {branch_pc[`GRLEN-1:2]+30'd1,2'b00};
 
-wire [`GRLEN-1:0] target_true = {branch_pc[`GRLEN-1:2],2'b00} + branch_offset;
-assign target_jr   = branch_a + branch_offset;
+   wire [`GRLEN-1:0] target_true = {branch_pc[`GRLEN-1:2],2'b00} + branch_offset;
+   assign target_jr   = branch_a + branch_offset;
 
-assign bru_target = 
-    ({`GRLEN{!op_jirl && take}} & target_true)
-    // ({64{!op_jirl && take}} & branch_target)
-    |({`GRLEN{!op_jirl &&!take}} & target_next)
-    |({`GRLEN{op_jirl}} & target_jr );
-//assign bru_cancel = cancel && cancel_allow;
-//assign bru_valid = branch_valid;
-assign bru_taken = take;
-//assign bru_link_pc = target_next;
-//assign bru_pc = branch_pc;
+   assign bru_target = 
+		       ({`GRLEN{!op_jirl && take}} & target_true)
+                    // ({64{!op_jirl && take}} & branch_target)
+                      |({`GRLEN{!op_jirl &&!take}} & target_next)
+	              |({`GRLEN{op_jirl}} & target_jr );
+   //assign bru_cancel = cancel && cancel_allow;
+   //assign bru_valid = branch_valid;
+   assign bru_taken = take & branch_valid;
+   assign bru_link_pc = target_next;
+   //assign bru_pc = branch_pc;
 
+   assign bru_wen = op_jirl & branch_valid;
+   
 endmodule

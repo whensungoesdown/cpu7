@@ -1,4 +1,4 @@
-RUN_SOFTWARE=func/func_uty4_beq
+RUN_SOFTWARE=func/func_uty5_jirl
 TRACE_COMP=n
 SIMU_TRACE=y
 RUN_FUNC=y
