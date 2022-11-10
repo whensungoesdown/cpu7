@@ -23,7 +23,9 @@ start:
 	addi.w $r5, $r0, 0x0a
 	addi.w $r5, $r5, 0x10
 	addi.w $r5, $r5, 0x10
-	jirl   $r1, $r6, 0x18    # it should jump to skip and r1 should be 1c000014
+	jirl   $r1, $r6, 0x20    # it should jump to skip and r1 should be 1c000014
+	addi.w $r5, $r5, 0x80
+	addi.w $r5, $r5, 0x80
 	addi.w $r5, $r5, 0x80
 skip:
 	addi.w $r5, $r5, 0x10
