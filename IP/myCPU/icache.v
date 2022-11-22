@@ -206,7 +206,8 @@ wire        rfil_new_req;
 reg                      rfil_send_cpu;
 reg  [`I_TAG_LEN-1   :0] rfil_ptag ;
 reg  [`I_INDEX_LEN-1 :0] rfil_index;
-reg  [`I_OFFSET_LEN-1:0] rfil_offset;
+reg  [`I_OFFSET_LEN-1:0] rfil_offset;  // uty: test
+//wire  [`I_OFFSET_LEN-1:0] rfil_offset_uty;
 reg                      rfil_uncache;
 
 reg  [31             :0] rfil_data [`LINE_INST_NUM-1:0];
@@ -219,6 +220,7 @@ reg  [`SCWAY_LEN-1   :0] rfil_rscway;
 //  ------------------- Store Req & Addr ------------------
 reg  inst_cancel_reg; // TODO: We can cencel request at lkup_state
 
+// uty: test
 reg  [`I_INDEX_LEN-1 :0] index ;
 reg  [`I_OFFSET_LEN-1:0] offset;
 
@@ -227,11 +229,19 @@ always @(posedge clk) begin
     index   <= {`I_INDEX_LEN {1'b0}};  // TODO: remove rst ?
     offset  <= {`I_OFFSET_LEN{1'b0}};
   end
-  else if(inst_addr_ok) begin
+  else if(inst_addr_ok) begin  // uty: test
+  //else begin
     index   <= inst_addr[`I_INDEX_BITS];
     offset  <= inst_addr[`I_OFFSET_BITS];
   end
 end
+//wire  [`I_INDEX_LEN-1 :0] index ;
+//wire  [`I_OFFSET_LEN-1:0] offset;
+//
+//assign index = inst_addr[`I_INDEX_BITS];
+//assign offset = inst_addr[`I_OFFSET_BITS];
+
+
 
 always @(posedge clk) begin
   if(rst)
@@ -541,6 +551,7 @@ end
   assign data_wdata_o = {rfil_data[ 7], rfil_data[ 6], rfil_data[ 5], rfil_data[ 4],
                          rfil_data[ 3], rfil_data[ 2], rfil_data[ 1], rfil_data[ 0]};
 
+  // uty: test		 
   assign miss_ret_data = {`INST_OUT_LEN{                         rfil_uncache}} & {32'b0        , 32'b0        , 32'b0        , rfil_data[ 0]} |
                          {`INST_OUT_LEN{rfil_offset == 3'b000 & !rfil_uncache}} & {rfil_data[ 3], rfil_data[ 2], rfil_data[ 1], rfil_data[ 0]} |
                          {`INST_OUT_LEN{rfil_offset == 3'b001 & !rfil_uncache}} & {rfil_data[ 4], rfil_data[ 3], rfil_data[ 2], rfil_data[ 1]} |
@@ -550,6 +561,16 @@ end
                          {`INST_OUT_LEN{rfil_offset == 3'b101 & !rfil_uncache}} & {32'b0        , rfil_data[ 7], rfil_data[ 6], rfil_data[ 5]} |
                          {`INST_OUT_LEN{rfil_offset == 3'b110 & !rfil_uncache}} & {32'b0        , 32'b0        , rfil_data[ 7], rfil_data[ 6]} |
                          {`INST_OUT_LEN{rfil_offset == 3'b111 & !rfil_uncache}} & {32'b0        , 32'b0        , 32'b0        , rfil_data[ 7]} ;
+
+//  assign miss_ret_data = {`INST_OUT_LEN{                         rfil_uncache}} & {32'b0        , 32'b0        , 32'b0        , rfil_data[ 0]} |
+//                         {`INST_OUT_LEN{offset == 3'b000 & !rfil_uncache}} & {rfil_data[ 3], rfil_data[ 2], rfil_data[ 1], rfil_data[ 0]} |
+//                         {`INST_OUT_LEN{offset == 3'b001 & !rfil_uncache}} & {rfil_data[ 4], rfil_data[ 3], rfil_data[ 2], rfil_data[ 1]} |
+//                         {`INST_OUT_LEN{offset == 3'b010 & !rfil_uncache}} & {rfil_data[ 5], rfil_data[ 4], rfil_data[ 3], rfil_data[ 2]} |
+//                         {`INST_OUT_LEN{offset == 3'b011 & !rfil_uncache}} & {rfil_data[ 6], rfil_data[ 5], rfil_data[ 4], rfil_data[ 3]} |
+//                         {`INST_OUT_LEN{offset == 3'b100 & !rfil_uncache}} & {rfil_data[ 7], rfil_data[ 6], rfil_data[ 5], rfil_data[ 4]} |
+//                         {`INST_OUT_LEN{offset == 3'b101 & !rfil_uncache}} & {32'b0        , rfil_data[ 7], rfil_data[ 6], rfil_data[ 5]} |
+//                         {`INST_OUT_LEN{offset == 3'b110 & !rfil_uncache}} & {32'b0        , 32'b0        , rfil_data[ 7], rfil_data[ 6]} |
+//                         {`INST_OUT_LEN{offset == 3'b111 & !rfil_uncache}} & {32'b0        , 32'b0        , 32'b0        , rfil_data[ 7]} ;
 `endif
 
 assign data_addr_o = (rfil_refill              )?  rfil_index              :
@@ -653,10 +674,17 @@ wire [1:0] miss_count;
   assign hit_count  = offset     [2] == 1'b1 ? ~offset     [1:0] : 2'b11;
   assign miss_count = rfil_offset[2] == 1'b1 ? ~rfil_offset[1:0] : 2'b11;
 
+  // uty: test
   assign miss_data_ok[0] = rfil_send_cpu &  rfil_offset == 3'b000 & rfil_record[1];
   assign miss_data_ok[1] = rfil_send_cpu & (rfil_offset == 3'b001  || rfil_offset == 3'b010) & rfil_record[2];
   assign miss_data_ok[2] = rfil_send_cpu & (rfil_offset[2] == 1'b1 || rfil_offset == 3'b011) & rfil_record[3];
   assign miss_data_ok[3] = rfil_send_cpu & (rfil_offset[2] == 1'b1 || rfil_offset == 3'b011) & rfil_record[3];
+
+//  assign miss_data_ok[0] = (rfil_offset_uty == 3'b000  || rfil_offset_uty == 3'b001) & rfil_record[0];
+//  assign miss_data_ok[1] = (rfil_offset_uty == 3'b010  || rfil_offset_uty == 3'b011) & rfil_record[1];
+//  assign miss_data_ok[2] = (rfil_offset_uty == 3'b100  || rfil_offset_uty == 3'b101) & rfil_record[2];
+//  assign miss_data_ok[3] = (rfil_offset_uty == 3'b110  || rfil_offset_uty == 3'b111) & rfil_record[3];
+
 `endif
 
 assign inst_count = (uncache_data_ok)? 2'b00 : ({2{|hit_data_ok}} & hit_count | {2{|miss_data_ok}} & miss_count);
@@ -682,7 +710,9 @@ assign rfil_idle      = rfil_state == 4'b0000;
 assign rfil_addr_wait = rfil_state == 4'b0001;
 assign rfil_data_wait = rfil_state == 4'b0010;
 
+// uty: test
 assign rfil_hit     = rfil_valid && tlb_ptag == rfil_ptag && index == rfil_index && tlb_finish && state_lkup;
+//assign rfil_hit     = rfil_valid && tlb_ptag == rfil_ptag && index == rfil_index && tlb_finish;
 
 assign rfil_alloc   = rfil_idle && state_lkup && cache_miss && !rfil_hit || rfil_refill && state_blck;
 
@@ -724,9 +754,11 @@ always @(posedge clk) begin
   if(rfil_new_req) begin
     rfil_ptag   <= (state_blck)? blck_ptag : tlb_ptag;
     rfil_index  <= index;
-    rfil_offset <= offset;
+    rfil_offset <= offset;   
   end
 end
+
+//assign rfil_offset_uty = inst_addr[`I_OFFSET_BITS]; // uty: tet
 
 // cache or uncache
 always @(posedge clk) begin
@@ -768,7 +800,9 @@ always @(posedge clk) begin
 end
 
 always @(posedge clk) begin
+  // uty: test
   if((!rfil_uncache && rfil_record[`RFIL_RECORD_LEN-1] && rfil_refill || rfil_uncache && rfil_record[0]) || rfil_alloc)
+  //if((!rfil_uncache && rfil_record[`RFIL_RECORD_LEN-1] || rfil_uncache && rfil_record[0]) || rfil_alloc)
     rfil_record <= {`RFIL_RECORD_LEN{1'b0}};
   else if(rfil_data_wait && ret_valid) begin
     rfil_record[3] <= rfil_record[2]? 1'b1 : 1'b0;

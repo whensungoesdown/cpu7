@@ -120,7 +120,10 @@ module cpu7(
    wire               data_req_empty ;
    wire               data_scsucceed ;
 
-      
+   // uty: test  
+   wire  [`PABITS-1:0]      itlb_paddr_dumb;
+
+   assign itlb_paddr = inst_tlb_vaddr[`PABITS-1:0];
 
    
    cpu7_ifu ifu(
@@ -351,7 +354,7 @@ module cpu7(
       .i_cache_rcv       (itlb_cache_recv  ),
       .i_finish          (itlb_finish      ),
       .i_hit             (itlb_hit         ),
-      .i_paddr           (itlb_paddr       ),
+      .i_paddr           (itlb_paddr_dumb  ),
       .i_uncached        (itlb_uncache     ),
       .i_exccode         (itlb_exccode     ),
       

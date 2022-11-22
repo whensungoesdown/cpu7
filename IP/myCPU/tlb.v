@@ -33,6 +33,7 @@ module tlb
     input                   i_s_cache_rcv ,
     output reg              i_s_finish_his,
     output reg [PABITS-1:0] i_s_paddr_his ,
+//    output [PABITS-1:0]     i_s_paddr_uty ,
     output                  i_s_hit       ,
     output                  i_s_uncached  ,
     output     [ 5:0]       i_s_exccode   ,
@@ -183,6 +184,10 @@ assign i_unmapped_search  = csr_CRMD_DA | i_dir_map_win_hit;
 assign i_dir_map_win_hit  = i_dir_map_win0_hit | i_dir_map_win1_hit;
 assign i_dir_map_win0_hit = csr_CRMD_PG & i_s_vaddr[`LSOC1K_DMW_VSEG] == csr_dir_map_win0[`LSOC1K_DMW_VSEG] & csr_dir_map_win0[{3'b0,csr_CRMD_PLV}];
 assign i_dir_map_win1_hit = csr_CRMD_PG & i_s_vaddr[`LSOC1K_DMW_VSEG] == csr_dir_map_win1[`LSOC1K_DMW_VSEG] & csr_dir_map_win1[{3'b0,csr_CRMD_PLV}];
+
+
+// uty: test
+//assign i_s_paddr_uty = i_s_vaddr[PABITS-1:0];
 
 always @(posedge clk) begin
   if(i_s_req && i_unmapped_search) begin
