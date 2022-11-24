@@ -1,4 +1,4 @@
-RUN_SOFTWARE=func/test_cache_loop
+RUN_SOFTWARE=func/func_uty5_jirl
 TRACE_COMP=n
 SIMU_TRACE=y
 RUN_FUNC=y
