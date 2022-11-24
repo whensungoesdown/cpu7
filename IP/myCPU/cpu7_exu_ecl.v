@@ -249,7 +249,7 @@ module cpu7_exu_ecl(
       .rs_mux_sel_w   (ecl_byp_rs1_mux_sel_w  )
       );
 
-   assign user_other = alu_b_imm_e | double_read_e;
+   assign use_other_e = alu_b_imm_e | double_read_e;
 
    cpu7_exu_eclbyplog byplog_rs2(
       .rs_e           (rs2_e[4:0]             ),
@@ -257,7 +257,7 @@ module cpu7_exu_ecl(
       .rd_w           (rd_w[4:0]              ),
       .wen_m          (wen_m                  ),
       .wen_w          (wen_w                  ),
-      .use_other      (alu_b_imm_e            ),
+      .use_other      (use_other_e            ),
 
       .rs_mux_sel_rf  (ecl_byp_rs2_mux_sel_rf ),
       .rs_mux_sel_m   (ecl_byp_rs2_mux_sel_m  ),
@@ -356,7 +356,7 @@ module cpu7_exu_ecl(
    wire [`GRLEN-1:0]          ifu_exu_imm_shifted_e;
    wire [`GRLEN-1:0]          lsu_offset_e;
  
-   assign double_read_d = ifu_exu_op_d[`LSOC1K_DOUBLE_READ] & lsu_dispatch_d; //ifu_exu_valid_d; // why here needs valid
+   assign double_read_d = ifu_exu_op_d[`LSOC1K_DOUBLE_READ] & lsu_dispatch_d;
    
    dff_s #(1) double_read_d2e_reg (
       .din (double_read_d),
