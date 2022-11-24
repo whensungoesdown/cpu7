@@ -457,33 +457,36 @@ module cpu7_exu_ecl(
    assign ecl_bru_op_e = bru_op_e;
 
    
-   wire [`GRLEN-1:0] bru_a_d;
-   wire [`GRLEN-1:0] bru_a_e;
+//   wire [`GRLEN-1:0] bru_a_d;
+//   wire [`GRLEN-1:0] bru_a_e;
+//
+//   assign bru_a_d = irf_ecl_rs1_data_d;
+//   
+//   dff_s #(`GRLEN) bru_a_d2e_reg (
+//      .din (bru_a_d),
+//      .clk (clk),
+//      .q   (bru_a_e),
+//      .se(), .si(), .so());
+//   
+//   assign ecl_bru_a_e = bru_a_e;
 
-   assign bru_a_d = irf_ecl_rs1_data_d;
+   assign ecl_bru_a_e = byp_rs1_data_e;
    
-   dff_s #(`GRLEN) bru_a_d2e_reg (
-      .din (bru_a_d),
-      .clk (clk),
-      .q   (bru_a_e),
-      .se(), .si(), .so());
-   
-   assign ecl_bru_a_e = bru_a_e;
 
+//   wire [`GRLEN-1:0] bru_b_d;
+//   wire [`GRLEN-1:0] bru_b_e;
+//
+//   assign bru_b_d = irf_ecl_rs2_data_d;
+//
+//   dff_s #(`GRLEN) bru_b_d2e_reg (
+//      .din (bru_b_d),
+//      .clk (clk),
+//      .q   (bru_b_e),
+//      .se(), .si(), .so());
+//
+//   assign ecl_bru_b_e = bru_b_e;
 
-   wire [`GRLEN-1:0] bru_b_d;
-   wire [`GRLEN-1:0] bru_b_e;
-
-   assign bru_b_d = irf_ecl_rs2_data_d;
-
-   dff_s #(`GRLEN) bru_b_d2e_reg (
-      .din (bru_b_d),
-      .clk (clk),
-      .q   (bru_b_e),
-      .se(), .si(), .so());
-
-   assign ecl_bru_b_e = bru_b_e;
-
+   assign ecl_bru_b_e = byp_rs2_data_e;
 
    
    wire [`GRLEN-1:0] bru_pc_d;
