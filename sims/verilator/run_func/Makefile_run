@@ -20,5 +20,6 @@ endif
 golden_trace_make:
 	python3 ./qemu_log_helper.py --asm test.s --log single.log --dump-rftrace golden_trace.txt 
 simulation_run_func:
-	../output ${RUN_FLAG} --dump-delay $(DUMP_DELAY) --dump-trace $(DUMP_TRACE) --time-limit $(TIME_LIMIT) --save-bp-time $(SAVE_BP_TIME) --ram-save-bp-file $(RAM_SAVE_BP_FILE) --top-save-bp-file $(TOP_SAVE_BP_FILE) --restore-bp-time $(RESTORE_BP_TIME) --ram-restore-bp-file $(RAM_RESTORE_BP_FILE) --top-restore-bp-file $(TOP_RESTORE_BP_FILE)
+	../output ${RUN_FLAG} --dump-delay $(DUMP_DELAY) --dump-trace $(DUMP_TRACE) --time-limit $(TIME_LIMIT) --save-bp-time $(SAVE_BP_TIME) --ram-save-bp-file $(RAM_SAVE_BP_FILE) --top-save-bp-file $(TOP_SAVE_BP_FILE) --restore-bp-time $(RESTORE_BP_TIME) --ram-restore-bp-file $(RAM_RESTORE_BP_FILE) --top-restore-bp-file $(TOP_RESTORE_BP_FILE)  || read REPLY
 
+# "|| read REPLY" will pause and wait for a key press when output returns a non-zero value 

@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <sys/time.h>
 
+
 // Current simulation time (64-bit unsigned)
 vluint64_t main_time = 0;
 double sc_time_stamp() {return main_time;}
@@ -52,6 +53,7 @@ int main(int argc, char** argv, char** env) {
 
     if (0 == testcase_status)
     {
+	    printf("\033[0;32m");
 	    printf("Test case passed!\n");
 	    printf("**************************************************\n");	           
 	    printf("*                                                *\n");
@@ -63,9 +65,14 @@ int main(int argc, char** argv, char** env) {
 	    printf("*                                                *\n");
 	    printf("**************************************************\n");	           
 	    printf("\n");
+	    printf("\033[0m");
+
+	    delete tb;
+	    exit(0);
     }
     else
     {
+	    printf("\033[0;31m");
 	    printf("Test case failed!\n");
 	    printf("**************************************************\n");	           
 	    printf("*                                                *\n");
@@ -77,8 +84,10 @@ int main(int argc, char** argv, char** env) {
 	    printf("*                                                *\n");
 	    printf("**************************************************\n");	           
 	    printf("\n");
+	    printf("\033[0m");
+
+	    delete tb;
+	    exit(-1);
     }
 
-    delete tb;
-    exit(0);
 }
