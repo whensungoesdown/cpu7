@@ -626,15 +626,15 @@ module mycpu_top (
         .cache_op_badvaddr(icache_op_badvaddr  ),
 
         .tlb_ptag         (itlb_paddr[`I_TAG_BITS]),
-        //.tlb_finish       (itlb_finish         ),  // uty: test
+        .tlb_finish       (itlb_finish         ),  // uty: test  move the hack to cpu7.v
         //.tlb_finish       (cpu_inst_tlb_req    ),
-        .tlb_finish       (1'b1    ),
-        //.tlb_hit          (itlb_hit            ), // uty: test
+        //.tlb_finish       (1'b1    ),
+        .tlb_hit          (itlb_hit            ), // uty: test
         //.tlb_hit          (cpu_inst_tlb_req    ),
-        .tlb_hit          (1'b1    ),
+        //.tlb_hit          (1'b1    ),
         .tlb_cache_recv   (itlb_cache_recv     ),
-        //.tlb_uncache      (itlb_uncache        ), // uty: test
-        .tlb_uncache      (1'b0                ), // uty: test
+        .tlb_uncache      (itlb_uncache        ), // uty: test
+        //.tlb_uncache      (1'b0                ), // uty: test
         .tlb_exccode      (itlb_exccode        ),
 
         ////cpu_control
