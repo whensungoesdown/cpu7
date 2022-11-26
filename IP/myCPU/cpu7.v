@@ -268,7 +268,7 @@ module cpu7(
 
    
    //
-   // a trick to get ride of the tlb and make the cache work
+   // a trick to get rid of the tlb and make the cache work
    //
    
    assign cache_op_tag = {`D_TAG_LEN{1'b0}}; // TODO
