@@ -120,29 +120,6 @@ module cpu7(
    wire               data_req_empty ;
    wire               data_scsucceed ;
 
-   // uty: test  
-   //wire  [`PABITS-1:0]      itlb_paddr_dumb;
-
-   assign itlb_finish  = 1'b1;
-   assign itlb_hit     = 1'b1;
-   assign itlb_uncache = 1'b0;
-   assign itlb_paddr   = inst_tlb_vaddr[`PABITS-1:0];
-
-   
-   dff_s #(1) dtlb_finish_reg (
-      .din (data_tlb_req),
-      .clk (clk),
-      .q   (dtlb_finish),
-      .se(), .si(), .so());
-//   assign dtlb_finish  = 1'b1;
-   assign dtlb_hit     = 1'b1;
-   assign dtlb_uncache = 1'b0;
-   dff_s #(`PABITS) dtlb_paddr_reg (
-      .din (data_tlb_vaddr[`PABITS-1:0]),
-      .clk (clk),
-      .q   (dtlb_paddr),
-      .se(), .si(), .so());
-   //assign dtlb_paddr   = data_tlb_vaddr[`PABITS-1:0]; 
 
 
    
@@ -288,188 +265,36 @@ module cpu7(
    assign data_scsucceed  = dcache2pipeline_bus[`DCACHE2PIPELINE_BUS_SCSUCCEED];
 
 
+
+   
+   //
+   // a trick to get ride of the tlb and make the cache work
+   //
    
    assign cache_op_tag = {`D_TAG_LEN{1'b0}}; // TODO
 
-   //csr
-//   wire  [`GRLEN-1:0]  csr_rdata;
-//   wire  [`LSOC1K_CSR_BIT-1 :0] csr_raddr;
-//   wire                except_shield;
-//   wire                int_except;
-//   wire                cp0_status_erl;
-//   wire                cp0_status_exl;
-//   wire                cp0_status_bev;
-//   wire                cp0_cause_iv;
-//   wire  [ 2:0]        cp0_config_k0;
-//   wire  [17:0]        cp0_ebase_exceptionbase;
-//   wire  [`GRLEN-1:0]  cp0_epc;
-//   wire  [`GRLEN-1:0]  eret_epc;
-//   wire  [`GRLEN-1:0]  csr_ebase;
-//
-//   wire [`LSOC1K_CSR_OUTPUT_BIT-1:0] csr_output;
-//   
-//   // tlb
-//   wire        tlb_recv           ;
-//   wire [`LSOC1K_TLB_CODE_BIT-1:0] tlb_op   ;
-//   wire        tlb_finish         ;
-//
-//   wire [`GRLEN-1:0] tlb2cp0_index      ;
-//   wire [`GRLEN-1:0] tlb2cp0_entryhi    ;
-//   wire [`GRLEN-1:0] tlb2cp0_entrylo0   ;
-//   wire [`GRLEN-1:0] tlb2cp0_entrylo1   ;
-//   wire [`GRLEN-1:0] tlb2cp0_asid       ;
-//   
-//   wire [`GRLEN-1:0] cp02tlb_index      ;
-//   wire [`GRLEN-1:0] cp02tlb_entryhi    ;
-//   wire [`GRLEN-1:0] cp02tlb_entrylo0   ;
-//   wire [`GRLEN-1:0] cp02tlb_entrylo1   ;
-//   wire [`GRLEN-1:0] cp02tlb_asid       ;
-//   wire [5       :0] cp02tlb_ecode      ;
-//   
-//   wire [`GRLEN-1:0] csr_dir_map_win0;
-//   wire [`GRLEN-1:0] csr_dir_map_win1;
-//   wire [`GRLEN-1:0] csr_crmd;
-//
-//   tlb_wrapper u_tlb_wrapper(
-//      .clk               (clk              ),
-//      .reset             (~resetn          ),  
-//
-//      .test_pc           (ifu_exu_pc_e     ),   // test
-//
-//      .tlb_req           (tlb_req          ),
-//      .tlb_recv          (tlb_recv         ),
-//      .tlb_op            (tlb_op           ),
-//      .invtlb_vaddr      (data_wdata       ),
-//      .tlb_finish        (tlb_finish       ),
-//
-//      .csr_index_out     (tlb2cp0_index    ),
-//      .csr_entryhi_out   (tlb2cp0_entryhi  ),
-//      .csr_entrylo0_out  (tlb2cp0_entrylo0 ),
-//      .csr_entrylo1_out  (tlb2cp0_entrylo1 ),
-//      .csr_asid_out      (tlb2cp0_asid     ),
-//
-//      .csr_index_in      (cp02tlb_index    ),
-//      .csr_entryhi_in    (cp02tlb_entryhi  ),
-//      .csr_entrylo0_in   (cp02tlb_entrylo0 ),
-//      .csr_entrylo1_in   (cp02tlb_entrylo1 ),
-//      .csr_asid_in       (cp02tlb_asid     ),
-//      .csr_ecode_in      (cp02tlb_ecode    ),
-//
-//      .csr_CRMD_PLV      (csr_crmd[`CRMD_PLV ]),
-//      .csr_CRMD_DA       (csr_crmd[`CRMD_DA  ]),
-//      .csr_CRMD_PG       (csr_crmd[`CRMD_PG  ]),
-//      .csr_CRMD_DATF     (csr_crmd[`CRMD_DATF]),
-//      .csr_CRMD_DATM     (csr_crmd[`CRMD_DATM]),
-//`ifdef LA64
-//      .csr_FTLBPS_FTPS   (csr_pgsize_ftps     ),
-//`endif
-//      .csr_dir_map_win0  (csr_dir_map_win0    ),
-//      .csr_dir_map_win1  (csr_dir_map_win1    ),
-//
-//      .c_op              (cache_op         ),
-//
-//      .i_req             (inst_tlb_req     ),
-//      .i_vaddr           (inst_tlb_vaddr   ),
-//      .i_cacop_req       (inst_tlb_cacop   ),
-//      .i_cache_rcv       (itlb_cache_recv  ),
-//      .i_finish          (itlb_finish      ),
-//      .i_hit             (itlb_hit         ),
-//      .i_paddr           (itlb_paddr_dumb  ),
-//      .i_uncached        (itlb_uncache     ),
-//      .i_exccode         (itlb_exccode     ),
-//      
-//      .d_req             (data_tlb_req     ),
-//      .d_wr              (data_tlb_wr      ),
-//      .d_vaddr           (data_tlb_vaddr   ),
-//      .d_cache_rcv       (dtlb_cache_recv  ),
-//      .d_no_trans        (dtlb_no_trans    ),
-//      .b_p_pgcl          (dtlb_p_pgcl      ),
-//      .d_finish          (dtlb_finish      ),
-//      .d_hit             (dtlb_hit         ),
-//      .d_paddr           (dtlb_paddr       ),
-//      .d_uncached        (dtlb_uncache     ),
-//      .d_exccode         (dtlb_exccode     )
-//      );
-//
-//   
-//   wire [`GRLEN-1:0] wb_tlbr_entrance;
-//
-//   
-//   csr csr(
-//      .clk                (clk             ),
-//      .resetn             (resetn          ),
-//      .intrpt             (8'd0/*intrpt    */      ), // TODO
-//      // tlb inst
-//      .tlbp               (csr_tlbp        ),
-//      .tlbr               (csr_tlbr        ),
-//      .ldpte              (1'b0            ), // TODO
-//      .tlbrp_index        (csr_tlbop_index ),
-//      .tlbr_entryhi       (tlb2cp0_entryhi ),
-//      .tlbr_entrylo0      (tlb2cp0_entrylo0),                
-//      .tlbr_entrylo1      (tlb2cp0_entrylo1),
-//      .tlbr_asid          (tlb2cp0_asid    ),
-//      //cache inst
-//      .cache_op_1         (cp0_cache_op_1  ),
-//      .cache_op_2         (cp0_cache_op_2  ),
-//      .cache_taglo_i      (cp0_cache_taglo ),
-//      .cache_taghi_i      (cp0_cache_taghi ),
-//      .cache_datalo_i     (cp0_cache_datalo),
-//      .cache_datahi_i     (cp0_cache_datahi),
-//      // csr inst
-//      .rdata              (csr_rdata       ),
-//      .raddr              (csr_raddr       ),
-//      .wdata              (csr_wdata       ),
-//      .waddr              (csr_waddr       ),
-//      .wen                (csr_wen         ),
-//      
-//      .llbctl             (llbctl          ),
-//      // exception
-//      //.wb_exception       (wb_exception    ),
-//      //.wb_exccode         (wb_exccode      ),
-//      //.wb_esubcode        (wb_esubcode     ),
-//      //.wb_epc             (wb_epc          ),
-//      //.wb_badvaddr        (wb_badvaddr     ),
-//      //.wb_badinstr        (wb_badinstr     ),
-//      //.wb_eret            (wb_eret         ),
-//
-//      .wb_exception       (1'b0            ),
-//      .wb_exccode         (6'b0            ),
-//      .wb_esubcode        (1'b0            ),
-//      .wb_epc             (`GRLEN'b0       ),
-//      .wb_badvaddr        (`GRLEN'b0       ),
-//      .wb_badinstr        (32'b0           ),
-//      .wb_eret            (1'b0            ),
-//
-//      .csr_output         (csr_output      ),
-//      
-//      .dmw0               (csr_dir_map_win0),
-//      .dmw1               (csr_dir_map_win1),
-//      .crmd               (csr_crmd        ),
-//`ifdef LA64
-//      .ftpgsize           (csr_pgsize_ftps ),
-//`endif
-//
-//      .index_out          (cp02tlb_index   ),
-//      .entryhi_out        (cp02tlb_entryhi ),
-//      .entrylo0_out       (cp02tlb_entrylo0),
-//      .entrylo1_out       (cp02tlb_entrylo1),
-//      .asid_out           (cp02tlb_asid    ),
-//      .ecode_out          (cp02tlb_ecode   ),
-//
-//      .epc_addr_out       (cp0_epc         ),
-//      .eret_epc_out       (eret_epc        ),// O,32
-//      .shield             (except_shield   ),
-//      .int_except         (int_except      ),
-//
-//      .status_erl         (cp0_status_erl         ),
-//      .status_exl         (cp0_status_exl         ),// O, 1
-//      .status_bev         (cp0_status_bev         ),// O, 1
-//      .cause_iv           (cp0_cause_iv           ),// O, 1
-//      .config_k0          (cp0_config_k0          ),
-//      .ebase_exceptionbase(cp0_ebase_exceptionbase),
-//      .taglo0_out         (cp0_taglo0             ),
-//      .taghi0_out         (cp0_taghi0             ),
-//      .tlbrebase          (wb_tlbr_entrance       ),
-//      .ebase              (csr_ebase              )
-//      );
+
+   assign itlb_finish  = 1'b1;
+   assign itlb_hit     = 1'b1;
+   assign itlb_uncache = 1'b0;
+   assign itlb_paddr   = inst_tlb_vaddr[`PABITS-1:0];
+
+   
+   dff_s #(1) dtlb_finish_reg (
+      .din (data_tlb_req),
+      .clk (clk),
+      .q   (dtlb_finish),
+      .se(), .si(), .so());
+//   assign dtlb_finish  = 1'b1;
+   assign dtlb_hit     = 1'b1;
+   assign dtlb_uncache = 1'b0;
+   dff_s #(`PABITS) dtlb_paddr_reg (
+      .din (data_tlb_vaddr[`PABITS-1:0]),
+      .clk (clk),
+      .q   (dtlb_paddr),
+      .se(), .si(), .so());
+   //assign dtlb_paddr   = data_tlb_vaddr[`PABITS-1:0]; 
+
+
+   
 endmodule // cpu7
