@@ -274,10 +274,20 @@ module cpu7(
    assign cache_op_tag = {`D_TAG_LEN{1'b0}}; // TODO
 
 
-   assign itlb_finish  = 1'b1;
+//   assign itlb_finish  = 1'b1;
+   dff_s #(1) itlb_finish_reg (
+      .din (inst_tlb_req),
+      .clk (clk),
+      .q   (itlb_finish),
+      .se(), .si(), .so());
    assign itlb_hit     = 1'b1;
    assign itlb_uncache = 1'b0;
-   assign itlb_paddr   = inst_tlb_vaddr[`PABITS-1:0];
+//   assign itlb_paddr   = inst_tlb_vaddr[`PABITS-1:0];
+   dff_s #(`PABITS) itlb_paddr_reg (
+      .din (inst_tlb_vaddr[`PABITS-1:0]),
+      .clk (clk),
+      .q   (itlb_paddr),
+      .se(), .si(), .so());
 
    
    dff_s #(1) dtlb_finish_reg (
