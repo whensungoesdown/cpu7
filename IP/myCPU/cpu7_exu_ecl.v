@@ -208,9 +208,10 @@ module cpu7_exu_ecl(
 
 
 
-   //
-   //  byp
-   //
+   //////////////////
+   //  bypass logic
+   //////////////////
+
    wire [4:0] rs1_e;
    wire [4:0] rs2_e;
 
@@ -300,9 +301,9 @@ module cpu7_exu_ecl(
 
    
    
-   //
+   ////////////////
    // LSU
-   //
+   ///////////////
 
    assign lsu_valid_d = lsu_dispatch_d; // & ifu_exu_valid_d; 
    
@@ -329,38 +330,8 @@ module cpu7_exu_ecl(
    assign ecl_lsu_op_e = lsu_op_e;
 
 
-   
-//   wire [`GRLEN-1:0]           lsu_base_d;
-//   wire [`GRLEN-1:0]           lsu_base_e;
-//
-//   assign lsu_base_d = irf_ecl_rs1_data_d;
-//   
-//   dff_s #(`GRLEN) lsu_base_reg (
-//      .din (lsu_base_d),
-//      .clk (clk),
-//      .q   (lsu_base_e),
-//      .se(), .si(), .so());
-//   
-//   assign ecl_lsu_base_e = lsu_base_e;
-
    assign ecl_lsu_base_e = byp_rs1_data_e;
    
-
-//   wire                       double_read_d;
-//   wire [`GRLEN-1:0]          lsu_offset_d;
-//   wire [`GRLEN-1:0]          lsu_offset_e;
-//
-//   assign double_read_d = ifu_exu_op_d[`LSOC1K_DOUBLE_READ] & ifu_exu_valid_d; // why here needs valid
-//
-//   assign lsu_offset_d = double_read_d ? irf_ecl_rs2_data_d : ifu_exu_imm_shifted_d; 
-//
-//   dff_s #(`GRLEN) lsu_offset_reg (
-//      .din (lsu_offset_d),
-//      .clk (clk),
-//      .q   (lsu_offset_e),
-//      .se(), .si(), .so());
-//   
-//   assign ecl_lsu_offset_e = lsu_offset_e;
 
    wire                       double_read_d;
    wire                       double_read_e;
@@ -384,22 +355,6 @@ module cpu7_exu_ecl(
    assign lsu_offset_e = double_read_e ? byp_rs2_data_e : ifu_exu_imm_shifted_e; 
    assign ecl_lsu_offset_e = lsu_offset_e;
 
-
-   
-
-
-//   wire [`GRLEN-1:0]         lsu_wdata_d;
-//   wire [`GRLEN-1:0]         lsu_wdata_e;
-//
-//   assign lsu_wdata_d = irf_ecl_rs2_data_d;
-//   
-//   dff_s #(`GRLEN) lsu_wdata_reg (
-//      .din (lsu_wdata_d),
-//      .clk (clk),
-//      .q   (lsu_wdata_e),
-//      .se(), .si(), .so());
-//
-//   assign ecl_lsu_wdata_e = lsu_wdata_e;
 
    assign ecl_lsu_wdata_e = byp_rs2_data_e;
 
@@ -435,9 +390,9 @@ module cpu7_exu_ecl(
 
    
 
-   //
+   //////////////////////
    // BRU
-   //
+   //////////////////////
 
    wire bru_valid_d;
    wire bru_valid_e;
@@ -468,35 +423,7 @@ module cpu7_exu_ecl(
    assign ecl_bru_op_e = bru_op_e;
 
    
-//   wire [`GRLEN-1:0] bru_a_d;
-//   wire [`GRLEN-1:0] bru_a_e;
-//
-//   assign bru_a_d = irf_ecl_rs1_data_d;
-//   
-//   dff_s #(`GRLEN) bru_a_d2e_reg (
-//      .din (bru_a_d),
-//      .clk (clk),
-//      .q   (bru_a_e),
-//      .se(), .si(), .so());
-//   
-//   assign ecl_bru_a_e = bru_a_e;
-
    assign ecl_bru_a_e = byp_rs1_data_e;
-   
-
-//   wire [`GRLEN-1:0] bru_b_d;
-//   wire [`GRLEN-1:0] bru_b_e;
-//
-//   assign bru_b_d = irf_ecl_rs2_data_d;
-//
-//   dff_s #(`GRLEN) bru_b_d2e_reg (
-//      .din (bru_b_d),
-//      .clk (clk),
-//      .q   (bru_b_e),
-//      .se(), .si(), .so());
-//
-//   assign ecl_bru_b_e = bru_b_e;
-
    assign ecl_bru_b_e = byp_rs2_data_e;
 
    
@@ -559,9 +486,12 @@ module cpu7_exu_ecl(
    
    
 
-   //
+
+   
+
+   /////////////////////////
    // MUL
-   //
+   ////////////////////////
 
    wire mul_wen_d;
    wire mul_wen_e;
@@ -674,10 +604,13 @@ module cpu7_exu_ecl(
 
    assign ecl_mul_short_e = mul_short_e;
 
+
+
    
-   //
+   
+   ///////////////////////
    // ALU
-   //
+   ///////////////////////
 
    ////
    //  rf_target rd_data rf_wen
@@ -732,15 +665,20 @@ module cpu7_exu_ecl(
       .se(), .si(), .so());
 
 
+   ////////////////////////////////////
+   // rd wen rd_data MUX
+   ////////////////////////////////////
    
    //
    //  rd mux
    //
-   // instructions other than ALU instructions have longer pipeline.
+   // Instructions other than ALU have longer pipeline.
    // they should maintain their own rd and mux them here at _m
-   // Because only ALU instructions take exactly 5 cycl.
+   // ALU instructions take exactly 5 cyclc.
    //
-   // jirl writting link register should be fine
+   // BRU and MUL share ALU's rd because they exactly follow the 5 stage pipeline.
+   // LSU takes uncertain cycles. It keeps record of its own rd.
+   //
 
    wire [4:0] rd_m;
    wire [4:0] rd_w;
@@ -762,6 +700,7 @@ module cpu7_exu_ecl(
   
    //
    // wen mux
+   //
    
    wire wen_m;
    wire wen_w;
@@ -786,17 +725,11 @@ module cpu7_exu_ecl(
 
    //
    // rd_data mux
-   
+   //
    
    wire [`GRLEN-1:0] rd_data_m;
    wire [`GRLEN-1:0] rd_data_w;
    
-
-//   dp_mux2es #(`GRLEN) rd_data_mux(
-//      .dout (rd_data_m),
-//      .in0  (alu_res_m),
-//      .in1  (lsu_ecl_rdata_m),
-//      .sel  (lsu_ecl_rdata_valid_m));
 
    wire rddata_sel_alu_res_m_l;
    wire rddata_sel_lsu_res_m_l;
@@ -807,8 +740,8 @@ module cpu7_exu_ecl(
    // alu better has a valid signal
    assign rddata_sel_alu_res_m_l = (lsu_ecl_rdata_valid_m | bru_wen_m | mul_valid_m); // default is alu resulst if no other module claims it
    assign rddata_sel_lsu_res_m_l = ~lsu_ecl_rdata_valid_m;
-   assign rddata_sel_bru_res_m_l = ~bru_wen_m;   // bru's rd and wen go with ALU's
-   assign rddata_sel_mul_res_m_l = ~mul_valid_m; // mul's rd and wen go with ALU's
+   assign rddata_sel_bru_res_m_l = ~bru_wen_m;   // bru's rd go with ALU's
+   assign rddata_sel_mul_res_m_l = ~mul_valid_m; // mul's rd go with ALU's
 
    dp_mux4ds #(`GRLEN) rd_data_mux(.dout  (rd_data_m),
                           .in0   (alu_res_m),
@@ -830,9 +763,20 @@ module cpu7_exu_ecl(
    assign ecl_irf_rd_data_w = rd_data_w;
 
 
+   /////////////////////
+   // stall IFU logic
+   ////////////////////
 
+   //
+   // BRU also stalls IFU for one cycle, but it does not signal exu_ifu_stall_req,
+   // becasue it involves pc_ logic, and changes control flow.
+   // 
+
+   
+   //
    // lsu stall request
-
+   //
+   
    wire lsu_stall_req;
    wire lsu_stall_req_next;
 
