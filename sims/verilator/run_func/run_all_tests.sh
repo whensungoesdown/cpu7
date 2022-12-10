@@ -54,3 +54,24 @@ movetotrash ./obj/func/
 ./configure.sh -run func/func_uty7_beq_testbyp1cycle --disable-trace-comp
 make soft_compile
 make simulation_run_func
+
+
+echo -e "\n\n\nTest func_uty8_mulw\n"
+movetotrash ./obj/func/
+./configure.sh -run func/func_uty8_mulw --disable-trace-comp
+make soft_compile
+make simulation_run_func
+
+
+echo -e "\n\n\nTest func_uty9_mulhwu\n"
+movetotrash ./obj/func/
+./configure.sh -run func/func_uty9_mulhwu --disable-trace-comp
+make soft_compile
+make simulation_run_func
+
+
+echo -e "\n\n\nTest func_uty10_mulhw\n"
+movetotrash ./obj/func/
+./configure.sh -run func/func_uty10_mulhw --disable-trace-comp
+make soft_compile
+make simulation_run_func

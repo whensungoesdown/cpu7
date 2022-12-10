@@ -40,7 +40,7 @@ module cpu7_exu_ecl(
    input  [4:0]                         lsu_ecl_rd_m,
    input                                lsu_ecl_wen_m,
 
-   //bru
+   // bru
    output                               ecl_bru_valid_e,
    output [`LSOC1K_BRU_CODE_BIT-1:0]    ecl_bru_op_e,
    output [`GRLEN-1:0]                  ecl_bru_a_e,
@@ -52,6 +52,17 @@ module cpu7_exu_ecl(
    input                                bru_ecl_br_taken_e,
    input  [`GRLEN-1:0]                  bru_byp_link_pc_e,
    input                                bru_ecl_wen_e,
+
+   // mul
+   output                               ecl_mul_valid_e,
+   output [`GRLEN-1:0]                  byp_mul_a_e,
+   output [`GRLEN-1:0]                  byp_mul_b_e,
+   output                               ecl_mul_signed_e,
+   output                               ecl_mul_double_e,
+   output                               ecl_mul_hi_e,
+   output                               ecl_mul_short_e,
+   input                                mul_ecl_ready_m, // mul returns result at _m, so this is signal is unused
+   input  [`GRLEN-1:0]                  mul_byp_res_m,
 
 
    output                               exu_ifu_stall_req,
@@ -548,19 +559,132 @@ module cpu7_exu_ecl(
    
    
 
+   //
+   // MUL
+   //
+
+   wire mul_wen_d;
+   wire mul_wen_e;
+   wire mul_wen_m;
+
+   assign mul_wen_d = ifu_exu_rf_wen_d & mul_dispatch_d;
+   
+   dff_s #(1) mul_wen_d2e_reg (
+      .din (mul_wen_d),
+      .clk (clk),
+      .q   (mul_wen_e),
+      .se(), .si(), .so());
+   
+   dff_s #(1) mul_wen_e2m_reg (
+      .din (mul_wen_e),
+      .clk (clk),
+      .q   (mul_wen_m),
+      .se(), .si(), .so());
+   
+
+   assign byp_mul_a_e = byp_rs1_data_e;
+   assign byp_mul_b_e = byp_rs2_data_e;
+   
+   wire mul_valid_d;
+   wire mul_valid_e;
+   wire mul_valid_m;
+
+   assign mul_valid_d = mul_dispatch_d;
+   
+   dff_s #(1) mul_valid_d2e_reg (
+      .din (mul_valid_d),
+      .clk (clk),
+      .q   (mul_valid_e),
+      .se(), .si(), .so());
+   
+   assign ecl_mul_valid_e = mul_valid_e;
+   
+   dff_s #(1) mul_valid_e2m_reg (
+      .din (mul_valid_e),
+      .clk (clk),
+      .q   (mul_valid_m),
+      .se(), .si(), .so());
+   
+
+   wire [`LSOC1K_MDU_CODE_BIT-1:0] mul_op_d;
+   assign mul_op_d = ifu_exu_op_d[`LSOC1K_MDU_CODE];
+
+   wire mul_signed_d;
+   wire mul_signed_e;
+
+   wire mul_double_d;
+   wire mul_double_e;
+
+   wire mul_hi_d;
+   wire mul_hi_e;
+
+   wire mul_short_d;
+   wire mul_short_e;
+   
+
+   assign mul_signed_d = mul_op_d == `LSOC1K_MDU_MUL_W     ||
+			 mul_op_d == `LSOC1K_MDU_MULH_W    ||
+			 mul_op_d == `LSOC1K_MDU_MUL_D     ||
+			 mul_op_d == `LSOC1K_MDU_MULH_D    ||
+			 mul_op_d == `LSOC1K_MDU_MULW_D_W  ;
+   assign mul_double_d = mul_op_d == `LSOC1K_MDU_MUL_D     ||
+			 mul_op_d == `LSOC1K_MDU_MULH_D    ||
+			 mul_op_d == `LSOC1K_MDU_MULH_DU   ;
+   assign mul_hi_d     = mul_op_d == `LSOC1K_MDU_MULH_W    ||
+			 mul_op_d == `LSOC1K_MDU_MULH_WU   ||
+			 mul_op_d == `LSOC1K_MDU_MULH_D    ||
+			 mul_op_d == `LSOC1K_MDU_MULH_DU   ;
+   assign mul_short_d  = mul_op_d == `LSOC1K_MDU_MUL_W     ||
+			 mul_op_d == `LSOC1K_MDU_MULH_W    ||
+			 mul_op_d == `LSOC1K_MDU_MULH_WU   ;
+
+
+   dff_s #(1) mul_signed_d2e_reg (
+      .din (mul_signed_d),
+      .clk (clk),
+      .q   (mul_signed_e),
+      .se(), .si(), .so());
+
+   assign ecl_mul_signed_e = mul_signed_e;
+
+
+   dff_s #(1) mul_double_d2e_reg (
+      .din (mul_double_d),
+      .clk (clk),
+      .q   (mul_double_e),
+      .se(), .si(), .so());
+
+   assign ecl_mul_double_e = mul_double_e;
+   
+   
+   dff_s #(1) mul_hi_d2e_reg (
+      .din (mul_hi_d),
+      .clk (clk),
+      .q   (mul_hi_e),
+      .se(), .si(), .so());
+
+   assign ecl_mul_hi_e = mul_hi_e;
+
+
+   dff_s #(1) mul_short_d2e_reg (
+      .din (mul_short_d),
+      .clk (clk),
+      .q   (mul_short_e),
+      .se(), .si(), .so());
+
+   assign ecl_mul_short_e = mul_short_e;
+
    
    //
    // ALU
    //
 
    ////
-   //  rd rd_data wen
+   //  rf_target rd_data rf_wen
    //  only for ALU instructions
    //
    wire [4:0] rf_target_e;
    wire [4:0] rf_target_m;
-   wire [4:0] rd_m;
-   wire [4:0] rd_w;
    
    dff_s #(5) rd_d2e_reg (
       .din (ifu_exu_rf_target_d),
@@ -574,6 +698,53 @@ module cpu7_exu_ecl(
       .q   (rf_target_m),
       .se(), .si(), .so());
 
+  
+   //
+   // rf_wen, only for ALU instructions
+   
+   wire rf_wen_d;
+   wire rf_wen_e;
+   wire rf_wen_m;
+   
+   assign rf_wen_d = ifu_exu_rf_wen_d & alu_dispatch_d;
+   
+   dff_s #(1) wen_d2e_reg (
+      .din (rf_wen_d),
+      .clk (clk),
+      .q   (rf_wen_e),
+      .se(), .si(), .so());
+   
+   dff_s #(1) wen_e2m_reg (
+      .din (rf_wen_e),
+      .clk (clk),
+      .q   (rf_wen_m),
+      .se(), .si(), .so());
+
+   //
+   // alu_res_m, only for ALU instructions
+
+   wire [`GRLEN-1:0] alu_res_m;
+
+   dff_s #(`GRLEN) rd_data_e2m_reg (
+      .din (alu_ecl_res_e),
+      .clk (clk),
+      .q   (alu_res_m),
+      .se(), .si(), .so());
+
+
+   
+   //
+   //  rd mux
+   //
+   // instructions other than ALU instructions have longer pipeline.
+   // they should maintain their own rd and mux them here at _m
+   // Because only ALU instructions take exactly 5 cycl.
+   //
+   // jirl writting link register should be fine
+
+   wire [4:0] rd_m;
+   wire [4:0] rd_w;
+   
    dp_mux2es #(5) rd_mux(
       .dout (rd_m),
       .in0  (rf_target_m),
@@ -589,28 +760,11 @@ module cpu7_exu_ecl(
    assign ecl_irf_rd_w = rd_w;
 
   
-   wire rf_wen_d;
-   wire rf_wen_e;
-   wire rf_wen_m;
+   //
+   // wen mux
+   
    wire wen_m;
    wire wen_w;
-
-   //
-   // wen, only for ALU instructions
-   //
-   assign rf_wen_d = ifu_exu_rf_wen_d & alu_dispatch_d;
-   
-   dff_s #(1) wen_d2e_reg (
-      .din (rf_wen_d),
-      .clk (clk),
-      .q   (rf_wen_e),
-      .se(), .si(), .so());
-   
-   dff_s #(1) wen_e2m_reg (
-      .din (rf_wen_e),
-      .clk (clk),
-      .q   (rf_wen_m),
-      .se(), .si(), .so());
    
 //   dp_mux2es #(1) wen_mux(
 //      .dout (wen_m),
@@ -618,9 +772,8 @@ module cpu7_exu_ecl(
 //      .in1  (lsu_ecl_wen_m),
 //      .sel  (lsu_ecl_rdata_valid_m));
    
-
    // set the wen if any module claims it
-   assign wen_m = rf_wen_m | (lsu_ecl_wen_m & lsu_ecl_rdata_valid_m) | bru_wen_m;
+   assign wen_m = rf_wen_m | (lsu_ecl_wen_m & lsu_ecl_rdata_valid_m) | bru_wen_m | mul_wen_m;
    
    dff_s #(1) wen_m2w_reg (
       .din (wen_m),
@@ -631,14 +784,9 @@ module cpu7_exu_ecl(
    assign ecl_irf_wen_w = wen_w;
    
 
+   //
+   // rd_data mux
    
-   wire [`GRLEN-1:0] alu_ecl_res_m;
-
-   dff_s #(`GRLEN) rd_data_e2m_reg (
-      .din (alu_ecl_res_e),
-      .clk (clk),
-      .q   (alu_ecl_res_m),
-      .se(), .si(), .so());
    
    wire [`GRLEN-1:0] rd_data_m;
    wire [`GRLEN-1:0] rd_data_w;
@@ -646,25 +794,31 @@ module cpu7_exu_ecl(
 
 //   dp_mux2es #(`GRLEN) rd_data_mux(
 //      .dout (rd_data_m),
-//      .in0  (alu_ecl_res_m),
+//      .in0  (alu_res_m),
 //      .in1  (lsu_ecl_rdata_m),
 //      .sel  (lsu_ecl_rdata_valid_m));
 
    wire rddata_sel_alu_res_m_l;
    wire rddata_sel_lsu_res_m_l;
    wire rddata_sel_bru_res_m_l;
+   wire rddata_sel_mul_res_m_l;
 
-   assign rddata_sel_alu_res_m_l = (lsu_ecl_rdata_valid_m | bru_wen_m); // default is alu resulst if no other module claims it
+   // uty: todo
+   // alu better has a valid signal
+   assign rddata_sel_alu_res_m_l = (lsu_ecl_rdata_valid_m | bru_wen_m | mul_valid_m); // default is alu resulst if no other module claims it
    assign rddata_sel_lsu_res_m_l = ~lsu_ecl_rdata_valid_m;
-   assign rddata_sel_bru_res_m_l = ~bru_wen_m;
+   assign rddata_sel_bru_res_m_l = ~bru_wen_m;   // bru's rd and wen go with ALU's
+   assign rddata_sel_mul_res_m_l = ~mul_valid_m; // mul's rd and wen go with ALU's
 
-   dp_mux3ds #(`GRLEN) rd_data_mux(.dout  (rd_data_m),
-                          .in0   (alu_ecl_res_m),
+   dp_mux4ds #(`GRLEN) rd_data_mux(.dout  (rd_data_m),
+                          .in0   (alu_res_m),
                           .in1   (lsu_ecl_rdata_m),
                           .in2   (bru_link_pc_m),
+                          .in3   (mul_byp_res_m),
                           .sel0_l (rddata_sel_alu_res_m_l),
                           .sel1_l (rddata_sel_lsu_res_m_l),
-                          .sel2_l (rddata_sel_bru_res_m_l));
+                          .sel2_l (rddata_sel_bru_res_m_l),
+                          .sel3_l (rddata_sel_mul_res_m_l));
    
    
    dff_s #(`GRLEN) rd_data_w_reg (
@@ -694,6 +848,12 @@ module cpu7_exu_ecl(
       .q   (lsu_stall_req),
       .se(), .si(), .so(), .rst (~resetn));
 
+
+
+
+   //
+   // exu_ifu_stall_req
+   //
    assign exu_ifu_stall_req = lsu_stall_req_next;
    
 endmodule // cpu7_exu_ecl

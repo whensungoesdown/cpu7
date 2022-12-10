@@ -107,6 +107,19 @@ module cpu7_exu(
    wire                                 bru_ecl_wen_e;
 
 
+   // mul
+   wire [`GRLEN-1:0] byp_mul_a_e;
+   wire [`GRLEN-1:0] byp_mul_b_e;
+   wire              ecl_mul_signed_e;
+   wire              ecl_mul_double_e;
+   wire              ecl_mul_hi_e;
+   wire              ecl_mul_short_e;
+   wire              ecl_mul_valid_e;
+   wire              mul_ecl_64ready;
+   wire              mul_ecl_32ready;
+   wire [`GRLEN-1:0] mul_byp_res_m;
+
+
    wire [`GRLEN-1:0] dumb_rdata1_0;
    wire [`GRLEN-1:0] dumb_rdata1_1;
    wire [`GRLEN-1:0] dumb_rdata2_0;
@@ -212,9 +225,21 @@ module cpu7_exu(
       .ecl_bru_offset_e         (ecl_bru_offset_e    ),
       .bru_ecl_brpc_e           (bru_ecl_brpc_e      ),
       .bru_ecl_br_taken_e       (bru_ecl_br_taken_e  ),
-      .bru_byp_link_pc_e        (bru_byp_link_pc_e   ), // byp, mark it for later a separate byp module
+      .bru_byp_link_pc_e        (bru_byp_link_pc_e   ),
       .bru_ecl_wen_e            (bru_ecl_wen_e       ),
 
+      // mul
+      .ecl_mul_valid_e          (ecl_mul_valid_e     ),
+      .byp_mul_a_e              (byp_mul_a_e         ),
+      .byp_mul_b_e              (byp_mul_b_e         ),
+      .ecl_mul_signed_e         (ecl_mul_signed_e    ),
+      .ecl_mul_double_e         (ecl_mul_double_e    ),
+      .ecl_mul_hi_e             (ecl_mul_hi_e        ),
+      .ecl_mul_short_e          (ecl_mul_short_e     ),
+      .mul_ecl_ready_m          (mul_ecl_32ready     ),
+      .mul_byp_res_m            (mul_byp_res_m       ),
+
+      
 
       .exu_ifu_stall_req        (exu_ifu_stall_req   ),
 
@@ -304,6 +329,41 @@ module cpu7_exu(
       .bru_link_pc              (bru_byp_link_pc_e      ),
       .bru_wen                  (bru_ecl_wen_e          )
       ); 
+   
+
+   wire [63:0] mul_a_input = {32'b0, byp_mul_a_e};
+   wire [63:0] mul_b_input = {32'b0, byp_mul_b_e};
+   wire [63:0] mul_res_output;
+   assign mul_byp_res_m = mul_res_output[31:0];
+   
+   mul64x64 mul(
+      .clk                (clk            ),
+      .rstn               (resetn         ),
+
+//      .mul_validin        (mul_valid      ),
+//      .ex2_allowin        (ex2_allow_in   ),
+//      .mul_validout       (ex2_mul_ready  ),
+//      .ex1_readygo        (ex1_allow_in   ),
+//      .ex2_readygo        (ex2_allow_in   ),
+      
+      .mul_validin        (ecl_mul_valid_e  ),
+      .ex2_allowin        (1'b1             ),
+      .mul_validout       (mul_ecl_64ready  ),
+      .ex1_readygo        (1'b1             ),
+      .ex2_readygo        (1'b1             ),
+
+      .opa                (mul_a_input      ),
+      .opb                (mul_b_input      ),
+      .mul_signed         (ecl_mul_signed_e ),
+      .mul64              (ecl_mul_double_e ),
+      .mul_hi             (ecl_mul_hi_e     ),
+      .mul_short          (ecl_mul_short_e  ),
+
+      .mul_res_out        (mul_res_output   ),
+      .mul_ready          (mul_ecl_32ready  )
+      );
+
+
    
    
    
