@@ -702,22 +702,22 @@ module cpu7_exu_ecl(
    //
    // rf_wen, only for ALU instructions
    
-   wire rf_wen_d;
-   wire rf_wen_e;
-   wire rf_wen_m;
+   wire alu_wen_d;
+   wire alu_wen_e;
+   wire alu_wen_m;
    
-   assign rf_wen_d = ifu_exu_rf_wen_d & alu_dispatch_d;
+   assign alu_wen_d = ifu_exu_rf_wen_d & alu_dispatch_d;
    
-   dff_s #(1) wen_d2e_reg (
-      .din (rf_wen_d),
+   dff_s #(1) alu_wen_d2e_reg (
+      .din (alu_wen_d),
       .clk (clk),
-      .q   (rf_wen_e),
+      .q   (alu_wen_e),
       .se(), .si(), .so());
    
-   dff_s #(1) wen_e2m_reg (
-      .din (rf_wen_e),
+   dff_s #(1) alu_wen_e2m_reg (
+      .din (alu_wen_e),
       .clk (clk),
-      .q   (rf_wen_m),
+      .q   (alu_wen_m),
       .se(), .si(), .so());
 
    //
@@ -768,12 +768,12 @@ module cpu7_exu_ecl(
    
 //   dp_mux2es #(1) wen_mux(
 //      .dout (wen_m),
-//      .in0  (rf_wen_m),
+//      .in0  (alu_wen_m),
 //      .in1  (lsu_ecl_wen_m),
 //      .sel  (lsu_ecl_rdata_valid_m));
    
    // set the wen if any module claims it
-   assign wen_m = rf_wen_m | (lsu_ecl_wen_m & lsu_ecl_rdata_valid_m) | bru_wen_m | mul_wen_m;
+   assign wen_m = alu_wen_m | (lsu_ecl_wen_m & lsu_ecl_rdata_valid_m) | bru_wen_m | mul_wen_m;
    
    dff_s #(1) wen_m2w_reg (
       .din (wen_m),
