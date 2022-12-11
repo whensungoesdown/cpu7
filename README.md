@@ -123,3 +123,13 @@ Test case passed!
 **************************************************
 
 ````` 
+
+## Debug
+
+#### View the testcase generated code
+
+`u@unamed:~/prjs/cpu7/sims/verilator/run_func$ vim obj/func/func_uty10_mulhw_obj/obj/test.s`
+
+#### View the signals 
+
+`u@unamed:~/prjs/cpu7/sims/verilator/run_func$ gtkwave log/func/func_uty10_mulhw_log/simu_trace.vcd`
