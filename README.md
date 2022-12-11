@@ -69,7 +69,7 @@ u@unamed:~/prjs/cpu7/software/func$ tree -L 1
 
 ````` 
 
-### build cpu7
+### Build cpu7
 
 In directory sims/verilator/run_func: 
 
@@ -79,30 +79,34 @@ u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make clean
 u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make
 `````
 
-### build testcase
+### Build testcase
 
 Choose a testcae, for example, func_uty10_mulhw.
+
 `u@unamed:~/prjs/cpu7/sims/verilator/run_func$ ./configure.sh -run func/func_uty10_mulhw --disable-trace-comp`
 
 Cleanup last build. (`make clean` will clean all, including verilator generated files.)
+
 `u@unamed:~/prjs/cpu7/sims/verilator/run_func$ movetotrash ./obj/func/`
 
 Only compile the testcase program.
+
 `u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make soft_compile`
 
 Run the simulation.
+
 `u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make simulation_run_func`
  
-#### Or Simply
+##### Or Simply
 
 `````shell
 u@unamed:~/prjs/cpu7/sims/verilator/run_func$ movetotrash ./obj/func/
 u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make
 `````
 
-### run all the tests
+### Run all the tests
 
-`u@unamed:~/prjs/cpu7/sims/verilator/run_func$ ./run_all_tests.sh'
+`u@unamed:~/prjs/cpu7/sims/verilator/run_func$ ./run_all_tests.sh`
 
 When successful, the ** PASS ** will be displayed.
 
