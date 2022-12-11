@@ -75,7 +75,6 @@ In directory sims/verilator/run_func:
 
 `````shell
 u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make clean
-
 u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make
 `````
 
@@ -83,19 +82,27 @@ u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make
 
 Choose a testcae, for example, func_uty10_mulhw.
 
-`u@unamed:~/prjs/cpu7/sims/verilator/run_func$ ./configure.sh -run func/func_uty10_mulhw --disable-trace-comp`
+`````shell
+u@unamed:~/prjs/cpu7/sims/verilator/run_func$ ./configure.sh -run func/func_uty10_mulhw --disable-trace-comp
+`````
 
 Cleanup last build. (`make clean` will clean all, including verilator generated files.)
 
-`u@unamed:~/prjs/cpu7/sims/verilator/run_func$ movetotrash ./obj/func/`
+`````shell
+u@unamed:~/prjs/cpu7/sims/verilator/run_func$ movetotrash ./obj/func/
+`````
 
 Only compile the testcase program.
 
-`u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make soft_compile`
+`````shell
+u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make soft_compile
+`````
 
 Run the simulation.
 
-`u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make simulation_run_func`
+`````shell
+u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make simulation_run_func
+`````
  
 ##### Or Simply
 
@@ -106,7 +113,9 @@ u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make
 
 ### Run all the tests
 
-`u@unamed:~/prjs/cpu7/sims/verilator/run_func$ ./run_all_tests.sh`
+`````shell
+u@unamed:~/prjs/cpu7/sims/verilator/run_func$ ./run_all_tests.sh
+`````
 
 When successful, the ** PASS ** will be displayed.
 
@@ -128,8 +137,12 @@ Test case passed!
 
 #### View the testcase generated code
 
-`u@unamed:~/prjs/cpu7/sims/verilator/run_func$ vim obj/func/func_uty10_mulhw_obj/obj/test.s`
+`````shell
+u@unamed:~/prjs/cpu7/sims/verilator/run_func$ vim obj/func/func_uty10_mulhw_obj/obj/test.s
+`````
 
 #### View the signals 
 
-`u@unamed:~/prjs/cpu7/sims/verilator/run_func$ gtkwave log/func/func_uty10_mulhw_log/simu_trace.vcd`
+`````shell
+u@unamed:~/prjs/cpu7/sims/verilator/run_func$ gtkwave log/func/func_uty10_mulhw_log/simu_trace.vcd
+`````
