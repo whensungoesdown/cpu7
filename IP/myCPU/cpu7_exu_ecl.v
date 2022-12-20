@@ -645,35 +645,35 @@ module cpu7_exu_ecl(
    
    assign ecl_csr_raddr_d = `GET_CSR(ifu_exu_inst_d);
 
-   //
-   // byp logic based on csr addr
-
-   wire ecl_byp_muxcsr_sel_csrrf;
-   wire ecl_byp_muxcsr_sel_e;
-   wire ecl_byp_muxcsr_sel_m;
-
-   cpu7_csr_byplog csrbyplog(
-      .csr_raddr_d       (ecl_csr_raddr_d          ),
-      .csr_waddr_e       (csr_waddr_e              ),
-      .csr_waddr_m       (csr_waddr_m              ),
-      .csr_wen_e         (csr_wen_e                ),
-      .csr_wen_m         (csr_wen_m                ),
-      
-      .csr_mux_sel_csrrf (ecl_byp_muxcsr_sel_csrrf ),
-      .csr_mux_sel_e     (ecl_byp_muxcsr_sel_e     ),
-      .csr_mux_sel_m     (ecl_byp_muxcsr_sel_m     )
-      );
-
-   mux3ds #(`GRLEN) mux_csr_rdata(.dout(csr_rdata_d),
-      .in0(csr_byp_rdata_d),
-      .in1(csr_wdata_e),
-      .in2(csr_wdata_m),
-      .sel0(ecl_byp_muxcsr_sel_csrrf),
-      .sel1(ecl_byp_muxcsr_sel_e),
-      .sel2(ecl_byp_muxcsr_sel_m)
-      );
+//   //
+//   // byp logic based on csr addr
+//
+//   wire ecl_byp_muxcsr_sel_csrrf;
+//   wire ecl_byp_muxcsr_sel_e;
+//   wire ecl_byp_muxcsr_sel_m;
+//
+//   cpu7_csr_byplog csrbyplog(
+//      .csr_raddr_d       (ecl_csr_raddr_d          ),
+//      .csr_waddr_e       (csr_waddr_e              ),
+//      .csr_waddr_m       (csr_waddr_m              ),
+//      .csr_wen_e         (csr_wen_e                ),
+//      .csr_wen_m         (csr_wen_m                ),
+//      
+//      .csr_mux_sel_csrrf (ecl_byp_muxcsr_sel_csrrf ),
+//      .csr_mux_sel_e     (ecl_byp_muxcsr_sel_e     ),
+//      .csr_mux_sel_m     (ecl_byp_muxcsr_sel_m     )
+//      );
+//
+//   mux3ds #(`GRLEN) mux_csr_rdata(.dout(csr_rdata_d),
+//      .in0(csr_byp_rdata_d),
+//      .in1(csr_wdata_e),
+//      .in2(csr_wdata_m),
+//      .sel0(ecl_byp_muxcsr_sel_csrrf),
+//      .sel1(ecl_byp_muxcsr_sel_e),
+//      .sel2(ecl_byp_muxcsr_sel_m)
+//      );
    
-   //assign csr_rdata_d = csr_byp_rdata_d;
+   assign csr_rdata_d = csr_byp_rdata_d;
 
 
    
