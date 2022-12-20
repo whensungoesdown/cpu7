@@ -312,6 +312,21 @@ do
             mkdir -p ./obj/func
             mkdir -p ./log/func
             ;;
+        func/func_uty11_csrrd) 
+            RUN_FUNC=y
+            mkdir -p ./obj/func
+            mkdir -p ./log/func
+            ;;
+        func/func_uty12_csrwr) 
+            RUN_FUNC=y
+            mkdir -p ./obj/func
+            mkdir -p ./log/func
+            ;;
+        func/func_uty13_testbyp1cycle) 
+            RUN_FUNC=y
+            mkdir -p ./obj/func
+            mkdir -p ./log/func
+            ;;
         my_program)
             RUN_FUNC=n 
             RUN_C=y

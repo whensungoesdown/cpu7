@@ -26,7 +26,7 @@ module cpu7(
 
     output [`PIPELINE2DCACHE_BUS_WIDTH-1:0] pipeline2dcache_bus,
     input  [`DCACHE2PIPELINE_BUS_WIDTH-1:0] dcache2pipeline_bus,
-    output                       csr_wen  ,
+    output                       csr_wen  , // uty: todo need remove these csr_
     output [`LSOC1K_CSR_BIT-1:0] csr_waddr,
     output [`GRLEN-1         :0] csr_wdata,
     output                       wb_eret  ,

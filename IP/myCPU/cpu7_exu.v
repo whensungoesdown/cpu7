@@ -120,6 +120,15 @@ module cpu7_exu(
    wire [`GRLEN-1:0] mul_byp_res_m;
 
 
+   // csr
+   wire [`GRLEN-1:0]            csr_byp_rdata_d;
+   wire [`LSOC1K_CSR_BIT-1:0]   ecl_csr_raddr_d;
+   wire [`LSOC1K_CSR_BIT-1:0]   ecl_csr_waddr_m;
+   wire [`GRLEN-1:0]            byp_csr_wdata_m;
+   wire                         ecl_csr_wen_m;
+
+
+
    wire [`GRLEN-1:0] dumb_rdata1_0;
    wire [`GRLEN-1:0] dumb_rdata1_1;
    wire [`GRLEN-1:0] dumb_rdata2_0;
@@ -239,6 +248,12 @@ module cpu7_exu(
       .mul_ecl_ready_m          (mul_ecl_32ready     ),
       .mul_byp_res_m            (mul_byp_res_m       ),
 
+      // csr
+      .csr_byp_rdata_d          (csr_byp_rdata_d     ),
+      .ecl_csr_raddr_d          (ecl_csr_raddr_d     ),
+      .ecl_csr_waddr_m          (ecl_csr_waddr_m     ),
+      .byp_csr_wdata_m          (byp_csr_wdata_m     ),
+      .ecl_csr_wen_m            (ecl_csr_wen_m       ),
       
 
       .exu_ifu_stall_req        (exu_ifu_stall_req   ),
@@ -364,6 +379,20 @@ module cpu7_exu(
       );
 
 
+
+   //
+   // CSR
+   //
+
+   cpu7_csr csr(
+      .clk               (clk               ),
+      .resetn            (resetn            ),
+      .csr_rdata         (csr_byp_rdata_d   ),
+      .csr_raddr         (ecl_csr_raddr_d   ),
+      .csr_waddr         (ecl_csr_waddr_m   ),
+      .csr_wdata         (byp_csr_wdata_m   ),
+      .csr_wen           (ecl_csr_wen_m     )
+      );
    
    
    

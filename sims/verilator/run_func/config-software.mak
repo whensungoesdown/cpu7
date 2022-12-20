@@ -1,4 +1,4 @@
-RUN_SOFTWARE=func/func_uty10_mulhw
+RUN_SOFTWARE=func/func_uty13_testbyp1cycle
 TRACE_COMP=n
 SIMU_TRACE=y
 RUN_FUNC=y
