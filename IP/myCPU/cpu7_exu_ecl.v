@@ -791,6 +791,22 @@ module cpu7_exu_ecl(
 
 
 
+   //
+   // csr stall req
+   
+   wire csr_stall_req;
+   wire csr_stall_req_next;
+
+   assign csr_stall_req_next = (csr_wen_d) | (csr_stall_req & ~csr_wen_m);
+   
+   dffr_s #(1) csr_stall_req_reg (
+      .din (csr_stall_req_next),
+      .clk (clk),
+      .q   (csr_stall_req),
+      .se(), .si(), .so(), .rst (~resetn));
+
+   
+
 
    
    
@@ -993,6 +1009,6 @@ module cpu7_exu_ecl(
    //
    // exu_ifu_stall_req
    //
-   assign exu_ifu_stall_req = lsu_stall_req_next;
+   assign exu_ifu_stall_req = lsu_stall_req_next | csr_stall_req_next;
    
 endmodule // cpu7_exu_ecl
