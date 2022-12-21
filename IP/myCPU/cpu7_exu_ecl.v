@@ -717,7 +717,7 @@ module cpu7_exu_ecl(
    
 
    //
-   // csrrw
+   // csrwr csrxchg
    
 //   wire [`LSOC1K_CSR_OP_BIT-1:0] csr_op_d;
 //
@@ -725,11 +725,28 @@ module cpu7_exu_ecl(
 //		     ifu_exu_op_d[`LSOC1K_CSR_WRITE] ? `LSOC1K_CSR_CSRWR   :
 //		     ifu_exu_op_d[`LSOC1K_CSR_READ ] ? `LSOC1K_CSR_CSRRD   :
 //		     `LSOC1K_CSR_IDLE    ;
+   
+   wire csr_xchg_d;
+   wire csr_xchg_e;
+   
+   wire [`GRLEN-1:0] csr_mask_e;
+   
+   assign csr_xchg_d = ifu_exu_op_d[`LSOC1K_CSR_XCHG];
+   
+   dff_s #(1) csr_xchg_d2e_reg (
+      .din (csr_xchg_d),
+      .clk (clk),
+      .q   (csr_xchg_e),
+      .se(), .si(), .so());
+   
+   assign csr_mask_e = byp_rs1_data_e;
+
 
    wire [`GRLEN-1:0] csr_wdata_e;
    wire [`GRLEN-1:0] csr_wdata_m;
    
-   assign csr_wdata_e = byp_rs2_data_e;
+   //assign csr_wdata_e = byp_rs2_data_e;
+   assign csr_wdata_e = csr_xchg_e ? (csr_mask_e & byp_rs2_data_e) : byp_rs2_data_e;
    
    dff_s #(`GRLEN) csr_wdata_e2m_reg (
       .din (csr_wdata_e),
@@ -783,12 +800,7 @@ module cpu7_exu_ecl(
 
    assign ecl_csr_waddr_m = csr_waddr_m;
    
-   //
-   // csrxhg
    
-   wire csr_xchg_d;
-   assign csr_xchg_d = ifu_exu_op_d[`LSOC1K_CSR_XCHG];
-
 
 
    //
