@@ -42,7 +42,7 @@ module cpu7_exu_eclbyplog(
 
    assign rs_mux_sel_m = use_m & bypass;
    assign rs_mux_sel_w = use_w & bypass;
-   assign rs_mux_sel_rf = use_rf;
+   assign rs_mux_sel_rf = use_rf | ~bypass;
 
    
 endmodule // cpu7_exu_eclbyplog
