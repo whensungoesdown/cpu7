@@ -46,6 +46,18 @@ Functional modules such as ALU, BRU, MUL, DIV are mostly reused.
 
 The ICACHE and DCACHE remains for now, but TLB was removed since there is only one machine mode in the current implementation.          
 
+## Progress
+
+### Implemented Instructions
+
+- Integer Arithmetic Instructions
+
+  **ADD.W** **SUB.W** **ADDI.W** **LU12I.W**
+	
+- Logical Operation Instructions
+
+- Integer Multiplies
+
 
 ## Build and Test
 
