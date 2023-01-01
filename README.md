@@ -6,8 +6,7 @@ At the same time, I wanted the process to be LoongArch based, and I was studying
 
 
 More blogs are kept at:
-
-https://whensungoesdown.github.io/
+- https://whensungoesdown.github.io/
 
 ## Pipeline
 
