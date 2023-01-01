@@ -1,14 +1,13 @@
 # CPU7
 
-CPU7 is the seventh 
+CPU7 is my seventh CPU project. It is still a single-issue pipelined core. The goal is to rewrite the modules following OpenSPARC's coding style.
 
-[CHIPLAB](https://gitee.com/loongson-edu/chiplab) is the star point of this CPU7 project.
+At the same time, I wanted the process to be LoongArch based, and I was studying [CHIPLAB](https://gitee.com/loongson-edu/chiplab). Therefore  was the starting point of this project. Most of the datapath and control logic modules are rewritten for the core. Decode and functional modules such as ALU, and MUL are reused.
 
-Datapath and control logic are rewritten.
 
-Functional modules such as ALU, BRU, MUL, DIV are mostly reused.
+More blogs are kept at:
 
-The ICACHE and DCACHE remains for now, but TLB was removed since there is only one machine mode in the current implementation.          
+https://whensungoesdown.github.io/
 
 ## Pipeline
 
