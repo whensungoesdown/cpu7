@@ -1,5 +1,15 @@
 # CPU7
 
+CPU7 is the seventh 
+
+[CHIPLAB](https://gitee.com/loongson-edu/chiplab) is the star point of this CPU7 project.
+
+Datapath and control logic are rewritten.
+
+Functional modules such as ALU, BRU, MUL, DIV are mostly reused.
+
+The ICACHE and DCACHE remains for now, but TLB was removed since there is only one machine mode in the current implementation.          
+
 ## Pipeline
 
 Single issue, in order, 5-stage pipeline
@@ -38,13 +48,6 @@ _f _d _e _m _w
                                                                   +-----------+
 `````
 
-CHIPLAB is the star point of this CPU7 project.
-
-Datapath and control logic are rewritten.
-
-Functional modules such as ALU, BRU, MUL, DIV are mostly reused.
-
-The ICACHE and DCACHE remains for now, but TLB was removed since there is only one machine mode in the current implementation.          
 
 ## LA32 Instructions
 
@@ -172,11 +175,11 @@ u@unamed:~/prjs/cpu7/software/func$ tree -L 1
 
 ### Build cpu7
 
-In directory sims/verilator/run_func: 
 
 `````shell
-u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make clean
-u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make
+cd sims/verilator/run_func
+make clean
+make
 `````
 
 ### Build testcase
@@ -184,38 +187,38 @@ u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make
 Choose a testcae, for example, func_uty10_mulhw.
 
 `````shell
-u@unamed:~/prjs/cpu7/sims/verilator/run_func$ ./configure.sh -run func/func_uty10_mulhw --disable-trace-comp
+sims/verilator/run_func$ ./configure.sh -run func/func_uty10_mulhw --disable-trace-comp
 `````
 
 Cleanup last build. (`make clean` will clean all, including verilator generated files.)
 
 `````shell
-u@unamed:~/prjs/cpu7/sims/verilator/run_func$ movetotrash ./obj/func/
+sims/verilator/run_func$ movetotrash ./obj/func/
 `````
 
-Only compile the testcase program.
+Partialy compile the testcase program.
 
 `````shell
-u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make soft_compile
+sims/verilator/run_func$ make soft_compile
 `````
 
 Run the simulation.
 
 `````shell
-u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make simulation_run_func
+sims/verilator/run_func$ make simulation_run_func
 `````
  
-##### Or Simply
+##### or Recompile and run the testcase
 
 `````shell
-u@unamed:~/prjs/cpu7/sims/verilator/run_func$ movetotrash ./obj/func/
-u@unamed:~/prjs/cpu7/sims/verilator/run_func$ make
+sims/verilator/run_func$ movetotrash ./obj/func/
+sims/verilator/run_func$ make
 `````
 
 ### Run all the tests
 
 `````shell
-u@unamed:~/prjs/cpu7/sims/verilator/run_func$ ./run_all_tests.sh
+sims/verilator/run_func$ ./run_all_tests.sh
 `````
 
 When successful, the ** PASS ** will be displayed.
@@ -239,11 +242,11 @@ Test case passed!
 #### View the testcase generated code
 
 `````shell
-u@unamed:~/prjs/cpu7/sims/verilator/run_func$ vim obj/func/func_uty10_mulhw_obj/obj/test.s
+sims/verilator/run_func$ vim obj/func/func_uty10_mulhw_obj/obj/test.s
 `````
 
 #### View the signals 
 
 `````shell
-u@unamed:~/prjs/cpu7/sims/verilator/run_func$ gtkwave log/func/func_uty10_mulhw_log/simu_trace.vcd
+sims/verilator/run_func$ gtkwave log/func/func_uty10_mulhw_log/simu_trace.vcd
 `````
