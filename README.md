@@ -1,5 +1,5 @@
-# cpu7
-
+# CPU7
+-----------------------------
 ## Pipeline
 
 Single issue, in order, 5-stage pipeline
@@ -7,6 +7,7 @@ Single issue, in order, 5-stage pipeline
 _f _d _e _m _w
 
 
+-----------------------------
 ## Modules
 
 `````c
@@ -46,29 +47,32 @@ Functional modules such as ALU, BRU, MUL, DIV are mostly reused.
 
 The ICACHE and DCACHE remains for now, but TLB was removed since there is only one machine mode in the current implementation.          
 
-## Progress
+-----------------------------
+## LA32 Instructions
 
 ### Implemented
 
 - Integer Arithmetic Instructions
 
-  ADD.W SUB.W ADDI.W 
-
-  LU12I.W PCADDU12I 
-
-  SLT[U] SLT[U]I 
-
-  AND OR NOR XOR
-
-  ANDI ORI XORI
-
-  NOP
+>    ADD.W SUB.W ADDI.W 
+>  
+>    LU12I.W PCADDU12I 
+>  
+>    SLT[U] SLT[U]I 
+>  
+>    AND OR NOR XOR
+>  
+>    ANDI ORI XORI
+>  
+>    NOP
 	
 - Bit-Shift Instructions
 
+`````
   SLL.W SRL.W SRA.W SLL.W SRL.W SRA.W
 
   SLLI.W SRLI.W SRAI.W
+`````
 
 - Branch Instructions
 
@@ -122,6 +126,7 @@ The ICACHE and DCACHE remains for now, but TLB was removed since there is only o
 
   ERTN IDLE
 
+-----------------------------
 ## Build and Test
 
 Test cases for each instruction are put at software/func.
@@ -212,6 +217,7 @@ Test case passed!
 
 ````` 
 
+-----------------------------
 ## Debug
 
 #### View the testcase generated code
