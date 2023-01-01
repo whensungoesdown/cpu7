@@ -52,7 +52,7 @@ The ICACHE and DCACHE remains for now, but TLB was removed since there is only o
 
 - Integer Arithmetic Instructions
 
-`````asm
+`````
 
   ADD.W SUB.W ADDI.W 
 
@@ -69,7 +69,7 @@ The ICACHE and DCACHE remains for now, but TLB was removed since there is only o
 	
 - Bit-Shift Instructions
 
-`````asm
+`````
   SLL.W SRL.W SRA.W SLL.W SRL.W SRA.W
 
   SLLI.W SRLI.W SRAI.W
@@ -77,7 +77,7 @@ The ICACHE and DCACHE remains for now, but TLB was removed since there is only o
 
 - Branch Instructions
 
-`````asm
+`````
   BEQ BNE BLT[U] BGE[U]
 
   B BL
@@ -87,13 +87,13 @@ The ICACHE and DCACHE remains for now, but TLB was removed since there is only o
 
 - Integer Multiply
 
-`````asm
+`````
   MUL.W MULH.W[U]
 `````
 
 - Common Memory Access Instructions
 
-`````asm
+`````
   LD.B LD.H LD.W LD.BU LD.HU LD.HU
 
   ST.B ST.H ST.W
@@ -101,7 +101,7 @@ The ICACHE and DCACHE remains for now, but TLB was removed since there is only o
 
 - CSR Access Instructions
 
-`````asm
+`````
   CSRRD CSRWR CSRXCHG
 `````
 ### Implementing...
@@ -114,19 +114,19 @@ The ICACHE and DCACHE remains for now, but TLB was removed since there is only o
 
 - Common Memory Access Instructions
 
-`````asm
+`````
   PRELD
 `````
 
 - Atomic Memory Access Instructions
 
-`````asm
+`````
   LL.W SC.W
 `````
 
 - Barrier Instructions
 
-`````asm
+`````
   DBAR IBAR
 `````
 
@@ -136,7 +136,7 @@ The ICACHE and DCACHE remains for now, but TLB was removed since there is only o
 
 - Misc
 
-`````asm
+`````
   SYSCALL BREAK
 
   RDCNTV{L/H}.W RDCNTID
