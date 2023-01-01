@@ -108,7 +108,7 @@ The ICACHE and DCACHE remains for now, but TLB was removed since there is only o
 
 - Integer Divide Instructions
 
-`````asm
+`````
   DIV.W[U]  MOD.W[U]
 `````
 
