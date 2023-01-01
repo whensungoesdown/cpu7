@@ -1,5 +1,5 @@
 # CPU7
------------------------------
+
 ## Pipeline
 
 Single issue, in order, 5-stage pipeline
@@ -7,7 +7,6 @@ Single issue, in order, 5-stage pipeline
 _f _d _e _m _w
 
 
------------------------------
 ## Modules
 
 `````c
@@ -47,28 +46,30 @@ Functional modules such as ALU, BRU, MUL, DIV are mostly reused.
 
 The ICACHE and DCACHE remains for now, but TLB was removed since there is only one machine mode in the current implementation.          
 
------------------------------
 ## LA32 Instructions
 
 ### Implemented
 
 - Integer Arithmetic Instructions
 
->    ADD.W SUB.W ADDI.W 
->  
->    LU12I.W PCADDU12I 
->  
->    SLT[U] SLT[U]I 
->  
->    AND OR NOR XOR
->  
->    ANDI ORI XORI
->  
->    NOP
+`````asm
+
+  ADD.W SUB.W ADDI.W 
+
+  LU12I.W PCADDU12I 
+
+  SLT[U] SLT[U]I 
+
+  AND OR NOR XOR
+
+  ANDI ORI XORI
+
+  NOP
+`````
 	
 - Bit-Shift Instructions
 
-`````
+`````asm
   SLL.W SRL.W SRA.W SLL.W SRL.W SRA.W
 
   SLLI.W SRLI.W SRAI.W
@@ -76,43 +77,58 @@ The ICACHE and DCACHE remains for now, but TLB was removed since there is only o
 
 - Branch Instructions
 
+`````asm
   BEQ BNE BLT[U] BGE[U]
 
   B BL
 
   JIRL
+`````
 
 - Integer Multiply
 
+`````asm
   MUL.W MULH.W[U]
+`````
 
 - Common Memory Access Instructions
 
+`````asm
   LD.B LD.H LD.W LD.BU LD.HU LD.HU
 
   ST.B ST.H ST.W
+`````
 
 - CSR Access Instructions
 
+`````asm
   CSRRD CSRWR CSRXCHG
-
+`````
 ### Implementing...
 
 - Integer Divide Instructions
 
+`````asm
   DIV.W[U]  MOD.W[U]
+`````
 
 - Common Memory Access Instructions
 
+`````asm
   PRELD
+`````
 
 - Atomic Memory Access Instructions
 
+`````asm
   LL.W SC.W
+`````
 
 - Barrier Instructions
 
+`````asm
   DBAR IBAR
+`````
 
 - Floating-point Instructions
 
@@ -120,13 +136,14 @@ The ICACHE and DCACHE remains for now, but TLB was removed since there is only o
 
 - Misc
 
+`````asm
   SYSCALL BREAK
 
   RDCNTV{L/H}.W RDCNTID
 
   ERTN IDLE
+`````
 
------------------------------
 ## Build and Test
 
 Test cases for each instruction are put at software/func.
@@ -217,7 +234,6 @@ Test case passed!
 
 ````` 
 
------------------------------
 ## Debug
 
 #### View the testcase generated code
