@@ -52,7 +52,7 @@ The ICACHE and DCACHE remains for now, but TLB was removed since there is only o
 
 - Integer Arithmetic Instructions
 
-  **ADD.W** **SUB.W** **ADDI.W** **LU12I.W**
+  ADD.W SUB.W ADDI.W LU12I.W
 	
 - Logical Operation Instructions
 
