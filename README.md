@@ -2,10 +2,10 @@
 
 CPU7 is my seventh CPU project. It is still a single-issue pipelined core. The goal is to rewrite the modules following OpenSPARC's coding style. These modules have also been reorganized into IFU and EXU for the next version of multi-issue and O-o-O.
 
-At the same time, I wanted the process to be LoongArch based, and I was studying CHIPLAB. Therefore CHIPLAB was the starting point of this project. However, the datapath and control logic modules are rewritten for the core. Decode, and functional modules such as ALU, and MUL are mostly reused.
+At the same time, I wanted the process to be LoongArch based, and I was studying [CHIPLAB](https://gitee.com/loongson-edu/chiplab). Therefore CHIPLAB was the starting point of this project. However, the datapath and control logic modules are rewritten for the core. Decode, and functional modules such as ALU, and MUL are mostly reused.
 
 More blogs are kept at:
-- https://whensungoesdown.github.io/
+- https://whensungoesdown.github.io
 
 ## Pipeline
 
