@@ -139,6 +139,11 @@ module cpu7_exu_ecl(
    //assign raddr2_1 = port1_triple_read ? `GET_RK(is_port1_inst) : `GET_RD(is_port2_inst);
 
 
+
+   
+   /////////////////////////
+   // ALU parameters
+   /////////////////////////
    
    
    wire [`LSOC1K_ALU_CODE_BIT-1:0] alu_op = ifu_exu_op_d[`LSOC1K_ALU_CODE];
