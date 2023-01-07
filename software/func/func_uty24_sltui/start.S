@@ -16,38 +16,32 @@ start:
 
 
     addi.w    $r3, $r0, 0x1      # r3 = 0x1
-    addi.w    $r4, $r0, 0x1      # r4 = 0x1
-    sltu      $r6, $r3, $r4      # r6 should be 0
+    sltui     $r6, $r3, 0x1      # r6 should be 0
     beq       $r2, $r6, error    # if r6 == 1 goto error
 
     
     addi.w    $r3, $r0, 0x1      # r3 = 0x1
-    addi.w    $r4, $r0, 0x2      # r4 = 0x2
-    sltu      $r6, $r3, $r4      # r6 should be 1
+    sltui     $r6, $r3, 0x2      # r6 should be 1
     beq       $r0, $r6, error    # if r6 == 0 goto error
 	
 
     addi.w    $r3, $r0, -0x1     # r3 = ffffffff
-    addi.w    $r4, $r0, 0x2      # r4 = 0x2
-    sltu      $r6, $r3, $r4      # r6 should be 0  (ffffffff < 2)
+    sltui     $r6, $r3, 0x2      # r6 should be 0  (ffffffff < 2)
     bne       $r0, $r6, error    # if r6 == 0 goto error
 
 
     addi.w    $r3, $r0, -0x2     # r3 = fffffffe
-    addi.w    $r4, $r0, -0x1     # r4 = ffffffff
-    sltu      $r6, $r3, $r4      # r6 should be 1 (fffffffe < ffffffff)
+    sltui     $r6, $r3, -0x1      # r6 should be 1 (fffffffe < ffffffff)
     bne       $r2, $r6, error    # if r6 != 1 goto error
 
 
     addi.w    $r3, $r0, -0x5     # r3 = fffffffb
-    addi.w    $r4, $r0, -0x5     # r4 = fffffffb
-    sltu      $r6, $r3, $r4      # r6 should be 0
+    sltui     $r6, $r3, -0x5      # r6 should be 0
     bne       $r0, $r6, error    # if r6 != 0 goto error
 
 
     addi.w    $r3, $r0, 0x0     # r3 = 0x0
-    addi.w    $r4, $r0, 0x0     # r4 = 0x0
-    sltu      $r6, $r3, $r4      # r6 should be 0
+    sltui     $r6, $r3, 0x0      # r6 should be 0
     bne       $r0, $r6, error    # if r6 != 0 goto error
 
 success:
