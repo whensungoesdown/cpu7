@@ -402,6 +402,11 @@ do
             mkdir -p ./obj/func
             mkdir -p ./log/func
             ;;
+        func/func_uty29_andi) 
+            RUN_FUNC=y
+            mkdir -p ./obj/func
+            mkdir -p ./log/func
+            ;;
         my_program)
             RUN_FUNC=n 
             RUN_C=y
