@@ -222,3 +222,10 @@ movetotrash ./obj/func/
 ./configure.sh -run func/func_uty31_xori --disable-trace-comp
 make soft_compile
 make simulation_run_func
+
+
+echo -e "\n\n\nTest func_uty32_nop\n"
+movetotrash ./obj/func/
+./configure.sh -run func/func_uty32_nop --disable-trace-comp
+make soft_compile
+make simulation_run_func
