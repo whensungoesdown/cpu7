@@ -264,3 +264,10 @@ movetotrash ./obj/func/
 ./configure.sh -run func/func_uty37_srliw --disable-trace-comp
 make soft_compile
 make simulation_run_func
+
+
+echo -e "\n\n\nTest func_uty38_sraiw\n"
+movetotrash ./obj/func/
+./configure.sh -run func/func_uty38_sraiw --disable-trace-comp
+make soft_compile
+make simulation_run_func
