@@ -1,0 +1,5 @@
+//inst
+add.w
+addi.w
+
+//PS:without data dependency 
