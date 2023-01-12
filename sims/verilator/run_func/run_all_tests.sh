@@ -306,3 +306,10 @@ movetotrash ./obj/func/
 ./configure.sh -run func/func_uty43_bltu --disable-trace-comp
 make soft_compile
 make simulation_run_func
+
+
+echo -e "\n\n\nTest func_uty44_bgeu\n"
+movetotrash ./obj/func/
+./configure.sh -run func/func_uty44_bgeu --disable-trace-comp
+make soft_compile
+make simulation_run_func
