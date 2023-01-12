@@ -140,6 +140,6 @@ assign take =
    assign bru_link_pc = target_next;
    //assign bru_pc = branch_pc;
 
-   assign bru_wen = op_jirl & branch_valid;
+   assign bru_wen = (op_jirl | op_bl) & branch_valid;
    
 endmodule
