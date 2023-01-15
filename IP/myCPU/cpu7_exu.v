@@ -294,7 +294,7 @@ module cpu7_exu(
       .clk                      (clk                   ),
       .resetn                   (resetn                ),
 
-      .valid                    (ecl_lsu_valid_e       ),
+      .valid_e                  (ecl_lsu_valid_e       ),
       .lsu_op                   (ecl_lsu_op_e          ),
       .base                     (ecl_lsu_base_e        ),
       .offset                   (ecl_lsu_offset_e      ),

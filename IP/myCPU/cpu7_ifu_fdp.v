@@ -53,6 +53,7 @@ module cpu7_ifu_fdp(
    wire ifu_pcbf_sel_old_bf_l;
    wire ifu_pcbf_sel_pcinc_bf_l;
    wire ifu_pcbf_sel_brpc_bf_l;
+   wire ifu_pcbf_sel_excpc_bf_l;
 
    //.o_valid          ({de1_port2_valid,de1_port1_valid,de1_port0_valid}),
    // only use port0

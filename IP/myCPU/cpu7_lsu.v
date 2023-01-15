@@ -5,7 +5,7 @@ module cpu7_lsu(
    input                              clk,
    input                              resetn,
 
-   input                              valid,
+   input                              valid_e,
    input [`LSOC1K_LSU_CODE_BIT-1:0]   lsu_op,
    input [`GRLEN-1:0]                 base,
    input [`GRLEN-1:0]                 offset,
@@ -41,16 +41,25 @@ module cpu7_lsu(
    );
 
 
-   wire lsu_except;
-   wire lsu_ale;
+   //wire lsu_except;
+   wire lsu_ale_e;
+   wire lsu_ale_m;
    
+   wire valid_m;
+   
+   dff_s #(1) valid_e2m_reg (
+      .din (valid_e),
+      .clk (clk),
+      .q   (valid_m),
+      .se(), .si(), .so());
 
+   
    // lsu_op needs dff, the following combinational logic is only used when data_data_ok is signaled at _m
    wire [`LSOC1K_LSU_CODE_BIT-1:0]    lsu_op_m;
    
    dffe_s #(`LSOC1K_LSU_CODE_BIT) lsu_op_e2m_reg (
       .din (lsu_op),
-      .en  (valid),
+      .en  (valid_e),
       .clk (clk),
       .q   (lsu_op_m),
       .se(), .si(), .so());
@@ -231,14 +240,14 @@ module cpu7_lsu(
    
    dffe_s #(`GRLEN) base_e2m_reg (
       .din (base),
-      .en  (valid),
+      .en  (valid_e),
       .clk (clk),
       .q   (base_m),
       .se(), .si(), .so());
    
    dffe_s #(`GRLEN) offset_e2m_reg (
       .din (offset),
-      .en  (valid),
+      .en  (valid_e),
       .clk (clk),
       .q   (offset_m),
       .se(), .si(), .so());
@@ -279,11 +288,14 @@ module cpu7_lsu(
 
    //assign lsu_res_valid     = data_data_ok || data_exception || res_valid || prefetch || !valid || (lsu_op == `LSOC1K_LSU_IDLE);
    //assign lsu_res_valid     = data_data_ok || data_exception || res_valid || prefetch || (lsu_op == `LSOC1K_LSU_IDLE);
-   assign lsu_finish_m = data_data_ok;
+
+   // if ale, data req is not sent out, so there will be no data_data_ok back
+   // lsu_ale is at _e, wait for the next cycle to signal lsu_finish_m
+   assign lsu_finish_m = data_data_ok | (lsu_ale_m & valid_m); 
 
    
 
-   assign data_req      = valid; // & !lsu_except; // let the req out and the cache will send back data_data_ok no matter what 
+   assign data_req      = valid_e & !lsu_ale_e; // if ale, do not send out data req 
    assign data_addr     = addr;
    assign data_wr       = lsu_wr;
 
@@ -324,15 +336,22 @@ module cpu7_lsu(
 //   assign lsu_except    = lsu_adem || lsu_ale || lsu_bce;
 
    
-   assign lsu_ale       = am_addr_align_exc || align_check && cm_addr_align_exc;
+   assign lsu_ale_e       = am_addr_align_exc || align_check && cm_addr_align_exc;
+
+   dff_s #(1) lsu_ale_e2m_reg (
+      .din (lsu_ale_e),
+      .clk (clk),
+      .q   (lsu_ale_m),
+      .se(), .si(), .so());
+   
    //assign lsu_except    = lsu_ale;
 
    // ale should go with valid, and valid is actually lsu_dispatch_e, only last one cycle
-   assign lsu_ecl_ale_e = lsu_ale & valid;
+   assign lsu_ecl_ale_e = lsu_ale_e & valid_e;
 
 
 
-   assign lsu_addr_finish = lsu_ale && (data_addr_ok || (lsu_op == `LSOC1K_LSU_IDLE));
+   assign lsu_addr_finish = lsu_ecl_ale_e && (data_addr_ok || (lsu_op == `LSOC1K_LSU_IDLE));
 
 
 
@@ -356,7 +375,7 @@ module cpu7_lsu(
    
    dffe_s #(5) lsu_rd_e2m_reg (
       .din (ecl_lsu_rd_e),
-      .en  (valid),
+      .en  (valid_e),
       .clk (clk),
       .q   (lsu_rd_m),
       .se(), .si(), .so());
@@ -367,7 +386,7 @@ module cpu7_lsu(
    
    dffe_s #(1) lsu_wen_e2m_reg (
       .din (ecl_lsu_wen_e),
-      .en  (valid),
+      .en  (valid_e),
       .clk (clk),
       .q   (lsu_wen_m),
       .se(), .si(), .so());
