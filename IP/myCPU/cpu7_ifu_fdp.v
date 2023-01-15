@@ -1,24 +1,28 @@
 `include "common.vh"
  
 module cpu7_ifu_fdp(
-   input  wire         clock          ,
-   input  wire         reset          ,
-   input  wire [31 :0] pc_init        ,
+   input  wire                 clock          ,
+   input  wire                 reset          ,
+   input  wire [31 :0]         pc_init        ,
 
    // group inst
-   output wire [31 :0] inst_addr      ,
-   input  wire         inst_addr_ok   ,
-   output wire         inst_cancel    ,
-   input  wire [1  :0] inst_count     ,
-   input  wire         inst_ex        ,
-   input  wire [5  :0] inst_exccode   ,
-   input  wire [127:0] inst_rdata     ,
-   output wire         inst_req       ,
-   input  wire         inst_uncache   ,
-   input  wire         inst_valid     ,
+   output wire [31 :0]         inst_addr      ,
+   input  wire                 inst_addr_ok   ,
+   output wire                 inst_cancel    ,
+   input  wire [1  :0]         inst_count     ,
+   input  wire                 inst_ex        ,
+   input  wire [5  :0]         inst_exccode   ,
+   input  wire [127:0]         inst_rdata     ,
+   output wire                 inst_req       ,
+   input  wire                 inst_uncache   ,
+   input  wire                 inst_valid     ,
 
-   input  wire         br_taken       ,
-   input  wire [31 :0] br_target      ,
+   input  wire                 br_taken       ,
+   input  wire [31 :0]         br_target      ,
+
+   // exception
+   input  wire [`GRLEN-1:0]    exu_ifu_eentry ,
+   input  wire                 exu_ifu_except ,
 
    // group o
    output wire                        fdp_dec_valid  ,
@@ -73,8 +77,8 @@ module cpu7_ifu_fdp(
    // if exu ask ifu to stall, the pc_bf takes bc_f and the instruction passed
    // down the pipe should be invalid
    //assign fdp_dec_valid = inst_valid;
-   assign fdp_dec_valid = inst_valid & ~exu_ifu_stall_req & ~br_taken; // pc_f shoudl not be passed to pc_d if a branch is taken at _e.
-
+   assign fdp_dec_valid = inst_valid & ~exu_ifu_stall_req & ~br_taken & ~exu_ifu_except; // pc_f shoudl not be passed to pc_d if a branch is taken at _e.
+   // or should not if exception happen
 
    //===================================================
    // PC Datapath
@@ -187,30 +191,33 @@ module cpu7_ifu_fdp(
 
    // when branch taken, inst_cancel need to be signal
    // so that the new target instruction can be fetched instead of the one previously requested
-   assign inst_cancel = br_taken;
+   assign inst_cancel = br_taken | exu_ifu_except;
 
    assign ifu_pcbf_sel_init_bf_l = ~reset;
    // use inst_valid instead of inst_addr_ok, should name it fcl_fdp_pcbf_sel_old_l_bf
-   //assign ifu_pcbf_sel_old_bf_l = inst_valid || reset || br_taken;
-   assign ifu_pcbf_sel_old_bf_l = (inst_valid || reset || br_taken) & (~exu_ifu_stall_req);
+   //assign ifu_pcbf_sel_old_bf_l = inst_valid || reset || br_taken || exu_ifu_except;
+   assign ifu_pcbf_sel_old_bf_l = (inst_valid || reset || br_taken || exu_ifu_except) & (~exu_ifu_stall_req);
    
    //assign ifu_pcbf_sel_pcinc_bf_l = ~(inst_valid && ~br_taken);  /// ??? br_taken never comes along with inst_valid, br_taken_e
-   assign ifu_pcbf_sel_pcinc_bf_l = ~(inst_valid && ~br_taken) | exu_ifu_stall_req;  /// ??? br_taken never comes along with inst_valid, br_taken_e
+   assign ifu_pcbf_sel_pcinc_bf_l = ~(inst_valid && ~br_taken && ~exu_ifu_except) | exu_ifu_stall_req;  /// ??? br_taken never comes along with inst_valid, br_taken_e
    //assign ifu_pcbf_sel_pcinc_bf_l = ~inst_valid;
    assign ifu_pcbf_sel_brpc_bf_l = ~br_taken; 
    //assign ifu_pcbf_sel_brpc_bf_l = 1'b1;
+   assign ifu_pcbf_sel_excpc_bf_l = ~exu_ifu_except;
    
 
-   dp_mux4ds #(32) pcbf_mux(
+   dp_mux5ds #(32) pcbf_mux(
       .dout (pc_bf),
       .in0  (pc_init),
       .in1  (pc_f),
       .in2  (pcinc_f),
       .in3  (br_target),
+      .in4  (exu_ifu_eentry),
       .sel0_l (ifu_pcbf_sel_init_bf_l),
       .sel1_l (ifu_pcbf_sel_old_bf_l), 
       .sel2_l (ifu_pcbf_sel_pcinc_bf_l),
-      .sel3_l (ifu_pcbf_sel_brpc_bf_l));
+      .sel3_l (ifu_pcbf_sel_brpc_bf_l),
+      .sel4_l (ifu_pcbf_sel_excpc_bf_l));
       
 
    //===================================================

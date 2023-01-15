@@ -17,7 +17,7 @@ module cpu7_ifu_imd(
    wire [15:0] port0_i16 = `GET_I16(ifu_exu_inst_d);
    wire [19:0] port0_i20 = `GET_I20(ifu_exu_inst_d);
    
-   wire [30:0] port0_i5_u  = {27'b0,port0_i5};
+   wire [31:0] port0_i5_u  = {27'b0,port0_i5};
    wire [31:0] port0_i6_u  = {26'b0,port0_i6};
    wire [31:0] port0_i12_u = {20'b0,port0_i12};
    wire [31:0] port0_i12_s = {{20{port0_i12[11]}},port0_i12};

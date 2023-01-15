@@ -27,7 +27,7 @@ again:
 	addi.w   $r6, $r0, -1            # r6 = ffffffff
 	csrwr    $r6, 0x0                # only crmd.ie (bit 2) can be set
 	csrrd    $r5, 0x0                # crmd
-	addi.w   $r5, $r5, 0x56     
+	addi.w   $r5, $r5, 0x53     
 	nop
 	nop
 

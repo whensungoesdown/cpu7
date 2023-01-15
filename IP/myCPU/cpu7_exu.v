@@ -15,7 +15,7 @@ module cpu7_exu(
    input  [5:0]                         ifu_exu_exccode_d,
    input                                ifu_exu_rf_wen_d,
    input  [4:0]                         ifu_exu_rf_target_d,
-   input  [`LSOC1K_PRU_HINT:0]          ifu_exu_hint_d,
+   input  [`LSOC1K_PRU_HINT-1:0]        ifu_exu_hint_d,
 
    input  [31:0]                        ifu_exu_imm_shifted_d,
    input  [`GRLEN-1:0]                  ifu_exu_c_d,
@@ -51,6 +51,10 @@ module cpu7_exu(
    output                               exu_ifu_stall_req,
    output [`GRLEN-1:0]                  exu_ifu_brpc_e,
    output                               exu_ifu_br_taken_e,
+
+   // exception
+   output [`GRLEN-1:0]                  exu_ifu_eentry,
+   output                               exu_ifu_except,
    
    //debug interface
    output [`GRLEN-1:0]                  debug0_wb_pc,
@@ -128,7 +132,6 @@ module cpu7_exu(
    wire                         ecl_csr_wen_m;
 
 
-
    wire [`GRLEN-1:0] dumb_rdata1_0;
    wire [`GRLEN-1:0] dumb_rdata1_1;
    wire [`GRLEN-1:0] dumb_rdata2_0;
@@ -182,6 +185,9 @@ module cpu7_exu(
    wire [4:0]                   lsu_ecl_rd_m;
    wire                         lsu_ecl_wen_m;
 
+   wire                         lsu_ecl_ale_e;
+   
+   
    // cpu7_exu_byp
    
    cpu7_exu_ecl ecl(
@@ -224,6 +230,8 @@ module cpu7_exu(
       .lsu_ecl_rdata_valid_m    (lsu_ecl_rdata_valid_m),
       .lsu_ecl_rd_m             (lsu_ecl_rd_m        ),
       .lsu_ecl_wen_m            (lsu_ecl_wen_m       ),
+      .lsu_ecl_addr_ok_e        (lsu_ecl_addr_ok_e   ),
+      .lsu_ecl_ale_e            (lsu_ecl_ale_e       ),
 
       // bru
       .ecl_bru_valid_e          (ecl_bru_valid_e     ),
@@ -282,7 +290,7 @@ module cpu7_exu(
 
 
 
-   lsu lsu(
+   cpu7_lsu lsu(
       .clk                      (clk                   ),
       .resetn                   (resetn                ),
 
@@ -319,7 +327,9 @@ module cpu7_exu(
       .read_result_m            (lsu_ecl_rdata_m       ), //lsu_byp_rdata_m
       .lsu_rdata_valid_m        (lsu_ecl_rdata_valid_m ),
       .lsu_ecl_rd_m             (lsu_ecl_rd_m          ),
-      .lsu_ecl_wen_m            (lsu_ecl_wen_m         )
+      .lsu_ecl_wen_m            (lsu_ecl_wen_m         ),
+      // currently, no signal represets for store success
+      .lsu_ecl_ale_e            (lsu_ecl_ale_e         )   // align exception
       );
 
    assign data_pc = ifu_exu_pc_e;
@@ -391,7 +401,9 @@ module cpu7_exu(
       .csr_raddr         (ecl_csr_raddr_d   ),
       .csr_waddr         (ecl_csr_waddr_m   ),
       .csr_wdata         (byp_csr_wdata_m   ),
-      .csr_wen           (ecl_csr_wen_m     )
+      .csr_wen           (ecl_csr_wen_m     ),
+
+      .csr_eentry        (exu_ifu_eentry    )
       );
    
    

@@ -39,6 +39,8 @@ module cpu7_exu_ecl(
    input                                lsu_ecl_rdata_valid_m,
    input  [4:0]                         lsu_ecl_rd_m,
    input                                lsu_ecl_wen_m,
+   input                                lsu_ecl_addr_ok_e, // not used
+   input                                lsu_ecl_ale_e,     // not used
 
    // bru
    output                               ecl_bru_valid_e,

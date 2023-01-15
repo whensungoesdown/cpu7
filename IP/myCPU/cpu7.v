@@ -95,6 +95,10 @@ module cpu7(
 
    wire [`GRLEN-1:0]                 exu_ifu_brpc_e;
    wire                              exu_ifu_br_taken_e;
+
+   // exception
+   wire [`GRLEN-1:0]                 exu_ifu_eentry;
+   wire                              exu_ifu_except;
    
    
    // Cache Pipeline Bus
@@ -143,6 +147,10 @@ module cpu7(
       .exu_ifu_br_taken        (exu_ifu_br_taken_e ), // BUG, need to change name
       .exu_ifu_br_target       (exu_ifu_brpc_e     ),
 
+      //exception
+      .exu_ifu_eentry          (exu_ifu_eentry       ),
+      .exu_ifu_except          (exu_ifu_except       ),
+
       // now only have one port
       .ifu_exu_valid_d         (ifu_exu_valid_d      ),
       .ifu_exu_inst_d          (ifu_exu_inst_d       ),
@@ -165,8 +173,6 @@ module cpu7(
 
       .exu_ifu_stall_req       (exu_ifu_stall_req    )
 
-      //.exu_ifu_brpc_e          (exu_ifu_brpc_e       ),
-      //.exu_ifu_br_taken_e      (exu_ifu_br_taken_e   )
       );
 
 
@@ -225,6 +231,10 @@ module cpu7(
 
       .exu_ifu_brpc_e          (exu_ifu_brpc_e       ),
       .exu_ifu_br_taken_e      (exu_ifu_br_taken_e   ),
+
+      //exception
+      .exu_ifu_eentry          (exu_ifu_eentry       ),
+      .exu_ifu_except          (exu_ifu_except       ),
 
       .debug0_wb_pc            (debug0_wb_pc         ),
       .debug0_wb_rf_wen        (debug0_wb_rf_wen     ),

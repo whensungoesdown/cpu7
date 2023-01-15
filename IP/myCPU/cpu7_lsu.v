@@ -1,7 +1,7 @@
 `include "common.vh"
 `include "decoded.vh"
 
-module lsu(
+module cpu7_lsu(
    input                              clk,
    input                              resetn,
 
@@ -36,10 +36,14 @@ module lsu(
    output [`GRLEN-1:0]                read_result_m,
    output                             lsu_rdata_valid_m, // data ok
    output [4:0]                       lsu_ecl_rd_m,
-   output                             lsu_ecl_wen_m
-
+   output                             lsu_ecl_wen_m,
+   output                             lsu_ecl_ale_e
    );
 
+
+   wire lsu_except;
+   wire lsu_ale;
+   
 
    // lsu_op needs dff, the following combinational logic is only used when data_data_ok is signaled at _m
    wire [`LSOC1K_LSU_CODE_BIT-1:0]    lsu_op_m;
@@ -279,7 +283,7 @@ module lsu(
 
    
 
-   assign data_req      = valid; 
+   assign data_req      = valid & !lsu_except; 
    assign data_addr     = addr;
    assign data_wr       = lsu_wr;
 
@@ -319,10 +323,15 @@ module lsu(
 //   assign lsu_adem      = 1'b0;
 //   assign lsu_except    = lsu_adem || lsu_ale || lsu_bce;
 
+   
+   assign lsu_ale       = am_addr_align_exc || align_check && cm_addr_align_exc;
+   assign lsu_except    = lsu_ale;
+
+   assign lsu_ecl_ale_e = lsu_ale;
 
 
 
-   assign lsu_addr_finish = data_addr_ok || (lsu_op == `LSOC1K_LSU_IDLE);
+   assign lsu_addr_finish = lsu_ale && (data_addr_ok || (lsu_op == `LSOC1K_LSU_IDLE));
 
 
 
@@ -353,9 +362,9 @@ module lsu(
 
    assign lsu_ecl_rd_m = lsu_rd_m;
    
-   wire [4:0]    lsu_wen_m;
+   wire    lsu_wen_m;
    
-   dffe_s #(5) lsu_wen_e2m_reg (
+   dffe_s #(1) lsu_wen_e2m_reg (
       .din (ecl_lsu_wen_e),
       .en  (valid),
       .clk (clk),

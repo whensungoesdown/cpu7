@@ -21,6 +21,10 @@ module cpu7_ifu(
    input  wire           exu_ifu_br_taken,
    input  wire [31:0]    exu_ifu_br_target,
 
+   // exception
+   input  wire [`GRLEN-1:0]                 exu_ifu_eentry,
+   input  wire                              exu_ifu_except,
+
    
    // port0
    output wire                              ifu_exu_valid_d,
@@ -62,6 +66,10 @@ module cpu7_ifu(
 
       .br_taken         (exu_ifu_br_taken  ),
       .br_target        (exu_ifu_br_target ),
+
+      // exception
+      .exu_ifu_eentry   (exu_ifu_eentry    ),
+      .exu_ifu_except   (exu_ifu_except    ),
 
       .inst_req         (inst_req          ),
       .inst_addr        (inst_addr         ),
