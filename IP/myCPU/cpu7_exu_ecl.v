@@ -36,7 +36,7 @@ module cpu7_exu_ecl(
    output [4:0]                         ecl_lsu_rd_e,
    output                               ecl_lsu_wen_e,
    input  [`GRLEN-1:0]                  lsu_ecl_rdata_m, // _m inputs are for writting to regfile
-   input                                lsu_ecl_rdata_valid_m,
+   input                                lsu_ecl_finish_m,
    input  [4:0]                         lsu_ecl_rd_m,
    input                                lsu_ecl_wen_m,
    input                                lsu_ecl_addr_ok_e, // not used
@@ -914,7 +914,7 @@ module cpu7_exu_ecl(
       .dout (rd_m),
       .in0  (rf_target_m),
       .in1  (lsu_ecl_rd_m),
-      .sel  (lsu_ecl_rdata_valid_m));
+      .sel  (lsu_ecl_finish_m));
    
    dff_s #(5) rd_m2w_reg (
       .din (rd_m),
@@ -936,10 +936,10 @@ module cpu7_exu_ecl(
 //      .dout (wen_m),
 //      .in0  (alu_wen_m),
 //      .in1  (lsu_ecl_wen_m),
-//      .sel  (lsu_ecl_rdata_valid_m));
+//      .sel  (lsu_ecl_finish_m));
    
    // set the wen if any module claims it
-   assign wen_m = alu_wen_m | (lsu_ecl_wen_m & lsu_ecl_rdata_valid_m) | bru_wen_m | mul_wen_m | csr_rdwen_m;
+   assign wen_m = alu_wen_m | (lsu_ecl_wen_m & lsu_ecl_finish_m) | bru_wen_m | mul_wen_m | csr_rdwen_m;
    
    dff_s #(1) wen_m2w_reg (
       .din (wen_m),
@@ -966,8 +966,8 @@ module cpu7_exu_ecl(
 
    // uty: todo
    // alu better has a valid signal
-   assign rddata_sel_alu_res_m_l = (lsu_ecl_rdata_valid_m | bru_wen_m | mul_valid_m | csr_valid_m); // default is alu resulst if no other module claims it
-   assign rddata_sel_lsu_res_m_l = ~lsu_ecl_rdata_valid_m;
+   assign rddata_sel_alu_res_m_l = (lsu_ecl_finish_m | bru_wen_m | mul_valid_m | csr_valid_m); // default is alu resulst if no other module claims it
+   assign rddata_sel_lsu_res_m_l = ~lsu_ecl_finish_m;
    assign rddata_sel_bru_res_m_l = ~bru_wen_m;   // bru's rd go with ALU's
    assign rddata_sel_mul_res_m_l = ~mul_valid_m; // mul's rd go with ALU's
    assign rddata_sel_csr_res_m_l = ~csr_valid_m; // csr's rd go with ALU's
@@ -1014,9 +1014,9 @@ module cpu7_exu_ecl(
 
    //
    // lsu_dispatch_d is the staring signal
-   // lsu_ecl_rdata_valid_m ends it
+   // lsu_ecl_finish_m ends it
    //
-   assign lsu_stall_req_next =  (lsu_dispatch_d) | (lsu_stall_req & ~lsu_ecl_rdata_valid_m); 
+   assign lsu_stall_req_next =  (lsu_dispatch_d) | (lsu_stall_req & ~lsu_ecl_finish_m); 
    
    dffr_s #(1) lsu_stall_req_reg (
       .din (lsu_stall_req_next),

@@ -181,7 +181,7 @@ module cpu7_exu(
    
    wire                         lsu_ecl_addr_ok_e;
    wire [`GRLEN-1:0]            lsu_ecl_rdata_m;
-   wire                         lsu_ecl_rdata_valid_m;
+   wire                         lsu_ecl_finish_m;
    wire [4:0]                   lsu_ecl_rd_m;
    wire                         lsu_ecl_wen_m;
 
@@ -227,7 +227,7 @@ module cpu7_exu(
       .ecl_lsu_rd_e             (ecl_lsu_rd_e        ),
       .ecl_lsu_wen_e            (ecl_lsu_wen_e       ),
       .lsu_ecl_rdata_m          (lsu_ecl_rdata_m     ),
-      .lsu_ecl_rdata_valid_m    (lsu_ecl_rdata_valid_m),
+      .lsu_ecl_finish_m         (lsu_ecl_finish_m    ),
       .lsu_ecl_rd_m             (lsu_ecl_rd_m        ),
       .lsu_ecl_wen_m            (lsu_ecl_wen_m       ),
       .lsu_ecl_addr_ok_e        (lsu_ecl_addr_ok_e   ),
@@ -325,7 +325,7 @@ module cpu7_exu(
       // lsu output
       .lsu_addr_finish          (lsu_ecl_addr_ok_e     ),
       .read_result_m            (lsu_ecl_rdata_m       ), //lsu_byp_rdata_m
-      .lsu_rdata_valid_m        (lsu_ecl_rdata_valid_m ),
+      .lsu_finish_m             (lsu_ecl_finish_m      ),
       .lsu_ecl_rd_m             (lsu_ecl_rd_m          ),
       .lsu_ecl_wen_m            (lsu_ecl_wen_m         ),
       // currently, no signal represets for store success

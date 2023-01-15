@@ -34,7 +34,7 @@ module cpu7_lsu(
    //result 
    output                             lsu_addr_finish, // addr ok
    output [`GRLEN-1:0]                read_result_m,
-   output                             lsu_rdata_valid_m, // data ok
+   output                             lsu_finish_m, // data ok
    output [4:0]                       lsu_ecl_rd_m,
    output                             lsu_ecl_wen_m,
    output                             lsu_ecl_ale_e
@@ -279,7 +279,7 @@ module cpu7_lsu(
 
    //assign lsu_res_valid     = data_data_ok || data_exception || res_valid || prefetch || !valid || (lsu_op == `LSOC1K_LSU_IDLE);
    //assign lsu_res_valid     = data_data_ok || data_exception || res_valid || prefetch || (lsu_op == `LSOC1K_LSU_IDLE);
-   assign lsu_rdata_valid_m = data_data_ok;
+   assign lsu_finish_m = data_data_ok;
 
    
 
@@ -325,7 +325,7 @@ module cpu7_lsu(
 
    
    assign lsu_ale       = am_addr_align_exc || align_check && cm_addr_align_exc;
-   assign lsu_except    = lsu_ale;
+   //assign lsu_except    = lsu_ale;
 
    // ale should go with valid, and valid is actually lsu_dispatch_e, only last one cycle
    assign lsu_ecl_ale_e = lsu_ale & valid;
