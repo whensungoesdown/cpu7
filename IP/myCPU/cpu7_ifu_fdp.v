@@ -196,7 +196,8 @@ module cpu7_ifu_fdp(
    assign ifu_pcbf_sel_init_bf_l = ~reset;
    // use inst_valid instead of inst_addr_ok, should name it fcl_fdp_pcbf_sel_old_l_bf
    //assign ifu_pcbf_sel_old_bf_l = inst_valid || reset || br_taken || exu_ifu_except;
-   assign ifu_pcbf_sel_old_bf_l = (inst_valid || reset || br_taken || exu_ifu_except) & (~exu_ifu_stall_req);
+   //assign ifu_pcbf_sel_old_bf_l = (inst_valid || reset || br_taken || exu_ifu_except) & (~exu_ifu_stall_req);
+   assign ifu_pcbf_sel_old_bf_l = ((inst_valid || reset || br_taken) & (~exu_ifu_stall_req)) | exu_ifu_except; // exception need ifu to fetch instruction from eentry
    
    //assign ifu_pcbf_sel_pcinc_bf_l = ~(inst_valid && ~br_taken);  /// ??? br_taken never comes along with inst_valid, br_taken_e
    assign ifu_pcbf_sel_pcinc_bf_l = ~(inst_valid && ~br_taken && ~exu_ifu_except) | exu_ifu_stall_req;  /// ??? br_taken never comes along with inst_valid, br_taken_e

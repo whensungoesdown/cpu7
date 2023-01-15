@@ -40,7 +40,7 @@ module cpu7_exu_ecl(
    input  [4:0]                         lsu_ecl_rd_m,
    input                                lsu_ecl_wen_m,
    input                                lsu_ecl_addr_ok_e, // not used
-   input                                lsu_ecl_ale_e,     // not used
+   input                                lsu_ecl_ale_e, 
 
    // bru
    output                               ecl_bru_valid_e,
@@ -73,7 +73,9 @@ module cpu7_exu_ecl(
    output [`GRLEN-1:0]                  byp_csr_wdata_m,
    output                               ecl_csr_wen_m,
 
-
+   // exception
+   output                               exu_ifu_except,
+   // ifu stall req
    output                               exu_ifu_stall_req,
    
    output [`GRLEN-1:0]                  exu_ifu_brpc_e,
@@ -1023,6 +1025,14 @@ module cpu7_exu_ecl(
       .se(), .si(), .so(), .rst (~resetn));
 
 
+
+
+   
+   //
+   // excetpion
+   //
+
+   assign exu_ifu_except = lsu_ecl_ale_e;
 
 
    //

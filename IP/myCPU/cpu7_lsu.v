@@ -283,7 +283,7 @@ module cpu7_lsu(
 
    
 
-   assign data_req      = valid & !lsu_except; 
+   assign data_req      = valid; // & !lsu_except; // let the req out and the cache will send back data_data_ok no matter what 
    assign data_addr     = addr;
    assign data_wr       = lsu_wr;
 
@@ -327,7 +327,8 @@ module cpu7_lsu(
    assign lsu_ale       = am_addr_align_exc || align_check && cm_addr_align_exc;
    assign lsu_except    = lsu_ale;
 
-   assign lsu_ecl_ale_e = lsu_ale;
+   // ale should go with valid, and valid is actually lsu_dispatch_e, only last one cycle
+   assign lsu_ecl_ale_e = lsu_ale & valid;
 
 
 

@@ -63,6 +63,8 @@ module cpu7_csr(
    wire [`GRLEN-1:0]       era;
    wire [`GRLEN-1:0]       era_nxt;
    wire                    era_wen;
+
+   assign era_nxt = csr_wdata;
    assign era_wen = (csr_waddr == `LSOC1K_CSR_EPC) && csr_wen;  // EPC is ERA
 
 
@@ -81,6 +83,8 @@ module cpu7_csr(
    wire [`GRLEN-1:0]       eentry;
    wire [`GRLEN-1:0]       eentry_nxt;
    wire                    eentry_wen;
+
+   assign eentry_nxt = csr_wdata;
    assign eentry_wen = (csr_waddr == `LSOC1K_CSR_EBASE) && csr_wen; // EBASE is EENTRY
 
    dffe_s #(`GRLEN) eentry_reg (

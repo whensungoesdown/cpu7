@@ -376,3 +376,17 @@ movetotrash ./obj/func/
 ./configure.sh -run func/func_uty53_st.h --disable-trace-comp
 make soft_compile
 make simulation_run_func
+
+
+echo -e "\n\n\nTest func_uty54_addrmisalignexception\n"
+movetotrash ./obj/func/
+./configure.sh -run func/func_uty54_addrmisalignexception --disable-trace-comp
+make soft_compile
+make simulation_run_func
+
+
+echo -e "\n\n\nTest func_uty55_csr.eentry\n"
+movetotrash ./obj/func/
+./configure.sh -run func/func_uty55_csr.eentry --disable-trace-comp
+make soft_compile
+make simulation_run_func

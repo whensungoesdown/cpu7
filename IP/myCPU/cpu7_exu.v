@@ -262,8 +262,8 @@ module cpu7_exu(
       .ecl_csr_waddr_m          (ecl_csr_waddr_m     ),
       .byp_csr_wdata_m          (byp_csr_wdata_m     ),
       .ecl_csr_wen_m            (ecl_csr_wen_m       ),
-      
 
+      .exu_ifu_except           (exu_ifu_except      ),
       .exu_ifu_stall_req        (exu_ifu_stall_req   ),
 
       .exu_ifu_brpc_e           (exu_ifu_brpc_e      ),
