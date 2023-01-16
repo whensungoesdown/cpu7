@@ -55,7 +55,44 @@ module cpu7_csr(
 		 };
 
 
+   //
+   //  PRMD
+   //
 
+   wire [`GRLEN-1:0]      prmd;
+   wire                   prmd_wen;
+   assign prmd_wen = (csr_waddr == `LSOC1K_CSR_PRMD) && csr_wen;
+
+   wire                   prmd_pie;
+   wire                   prmd_pie_nxt;
+   assign prmd_pie_nxt = csr_wdata[`LSOC1K_PRMD_PIE];
+
+   dffe_s #(1) prmd_pie_reg (
+      .din (prmd_pie_nxt),
+      .en  (prmd_wen),
+      .clk (clk),
+      .q   (prmd_pie),
+      .se(), .si(), .so());
+
+   wire [1:0]             prmd_pplv;
+   wire [1:0]             prmd_pplv_nxt;
+   assign prmd_pplv_nxt = csr_wdata[`LSOC1K_PRMD_PPLV];
+
+   dffe_s #(2) prmd_pplv_reg (
+      .din (prmd_pplv_nxt),
+      .en  (prmd_wen),
+      .clk (clk),
+      .q   (prmd_pplv),
+      .se(), .si(), .so());
+   
+
+   assign prmd = {
+		 29'b0,
+                 prmd_pie,
+                 prmd_pplv
+		 };
+
+   
    //
    //  ERA
    //
@@ -98,6 +135,7 @@ module cpu7_csr(
 
    
    assign csr_rdata = {`GRLEN{csr_raddr == `LSOC1K_CSR_CRMD}}  & crmd   |
+		      {`GRLEN{csr_raddr == `LSOC1K_CSR_PRMD}}  & prmd   |
 		      {`GRLEN{csr_raddr == `LSOC1K_CSR_EPC}}   & era    |
 		      {`GRLEN{csr_raddr == `LSOC1K_CSR_EBASE}} & eentry |
 		      `GRLEN'b0;
