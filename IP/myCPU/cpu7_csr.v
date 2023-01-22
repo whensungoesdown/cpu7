@@ -25,25 +25,39 @@ module cpu7_csr(
 
    
    wire                    crmd_ie;
+   wire                    crmd_ie_wdata;
    wire                    crmd_ie_nxt;
 
-   assign crmd_ie_nxt = csr_wdata[`CRMD_IE];
+   assign crmd_ie_wdata = csr_wdata[`CRMD_IE];
 
+   dp_mux2es #(1) crmd_ie_mux(
+      .dout (crmd_ie_nxt),
+      .in0  (crmd_ie_wdata),
+      .in1  (1'b0),
+      .sel  (ecl_csr_except));
+   
    dffe_s #(1) crmd_ie_reg (
       .din (crmd_ie_nxt),
-      .en  (crmd_wen),
+      .en  (crmd_wen | ecl_csr_except),
       .clk (clk),
       .q   (crmd_ie),
       .se(), .si(), .so());
    
    wire [1:0]             crmd_plv;
+   wire [1:0]             crmd_plv_wdata;
    wire [1:0]             crmd_plv_nxt;
 
-   assign crmd_plv_nxt = csr_wdata[`CRMD_PLV];
+   assign crmd_plv_wdata = csr_wdata[`CRMD_PLV];
+
+   dp_mux2es #(2) crmd_plv_mux(
+      .dout (crmd_plv_nxt),
+      .in0  (crmd_plv_wdata),
+      .in1  (2'b0),
+      .sel  (ecl_csr_except));
    
    dffe_s #(2) crmd_plv_reg (
       .din (crmd_plv_nxt),
-      .en  (crmd_wen),
+      .en  (crmd_wen | ecl_csr_except),
       .clk (clk),
       .q   (crmd_plv),
       .se(), .si(), .so());
@@ -69,7 +83,6 @@ module cpu7_csr(
    wire                   prmd_pie_nxt;
    assign prmd_pie_wdata = csr_wdata[`LSOC1K_PRMD_PIE];
 
-    
    dp_mux2es #(1) prmd_pie_mux(
       .dout (prmd_pie_nxt),
       .in0  (prmd_pie_wdata),

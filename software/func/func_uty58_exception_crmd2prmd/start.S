@@ -44,8 +44,16 @@ start:
     nop
 
 eentry:
-    csrrd      $r5, 0x1          # prmd, should read out 0x7 (pie, pplv)
-    addi.w     $r5, $r5, 0x53
+    csrrd      $r8, 0x0          # crmd, should be zero after exception raised
+    bne        $r0, $r8, error
+    csrrd      $r8, 0x1          # prmd, should read out 0x7 (pie, pplv)
+    addi.w     $r9, $r0, 0x7
+    bne        $r9, $r8, error
+
+success:
+    addi.w    $r5, $r0, 0x3a     # r5 = 0x3a
+error:
+    addi.w    $r5, $r5, 0x20     # r5 = 0x5a if go through success, otherwise 0x20
 
 #    addi.w     $r5, $r0, 0x20
 #    addi.w     $r5, $r5, 0x3a
