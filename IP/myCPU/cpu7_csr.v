@@ -9,7 +9,8 @@ module cpu7_csr(
    input  [`LSOC1K_CSR_BIT-1:0]         csr_waddr,
    input                                csr_wen,
 
-   output [`GRLEN-1:0]                  csr_eentry
+   output [`GRLEN-1:0]                  csr_eentry,
+   input                                ecl_csr_except
    );
 
 
@@ -64,23 +65,39 @@ module cpu7_csr(
    assign prmd_wen = (csr_waddr == `LSOC1K_CSR_PRMD) && csr_wen;
 
    wire                   prmd_pie;
+   wire                   prmd_pie_wdata;
    wire                   prmd_pie_nxt;
-   assign prmd_pie_nxt = csr_wdata[`LSOC1K_PRMD_PIE];
+   assign prmd_pie_wdata = csr_wdata[`LSOC1K_PRMD_PIE];
 
+    
+   dp_mux2es #(1) prmd_pie_mux(
+      .dout (prmd_pie_nxt),
+      .in0  (prmd_pie_wdata),
+      .in1  (crmd_ie),
+      .sel  (ecl_csr_except));
+   
    dffe_s #(1) prmd_pie_reg (
       .din (prmd_pie_nxt),
-      .en  (prmd_wen),
+      .en  (prmd_wen | ecl_csr_except),
       .clk (clk),
       .q   (prmd_pie),
       .se(), .si(), .so());
 
+
    wire [1:0]             prmd_pplv;
+   wire [1:0]             prmd_pplv_wdata;
    wire [1:0]             prmd_pplv_nxt;
-   assign prmd_pplv_nxt = csr_wdata[`LSOC1K_PRMD_PPLV];
+   assign prmd_pplv_wdata = csr_wdata[`LSOC1K_PRMD_PPLV];
+
+   dp_mux2es #(2) prmd_pplv_mux(
+      .dout (prmd_pplv_nxt),
+      .in0  (prmd_pplv_wdata),
+      .in1  (crmd_plv),
+      .sel  (ecl_csr_except));
 
    dffe_s #(2) prmd_pplv_reg (
       .din (prmd_pplv_nxt),
-      .en  (prmd_wen),
+      .en  (prmd_wen | ecl_csr_except),
       .clk (clk),
       .q   (prmd_pplv),
       .se(), .si(), .so());

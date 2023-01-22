@@ -75,6 +75,7 @@ module cpu7_exu_ecl(
 
    // exception
    output                               exu_ifu_except,
+   output                               ecl_csr_except,
    // ifu stall req
    output                               exu_ifu_stall_req,
    
@@ -1033,7 +1034,8 @@ module cpu7_exu_ecl(
    //
 
    assign exu_ifu_except = lsu_ecl_ale_e;
-
+   assign ecl_csr_except = exu_ifu_except;
+   
 
    //
    // exu_ifu_stall_req
