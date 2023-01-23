@@ -24,7 +24,9 @@ module cpu7_ifu(
    // exception
    input  wire [`GRLEN-1:0]                 exu_ifu_eentry,
    input  wire                              exu_ifu_except,
-
+   // ertn
+   input  wire [`GRLEN-1:0]                 exu_ifu_era,
+   input  wire                              exu_ifu_ertn_e,
    
    // port0
    output wire                              ifu_exu_valid_d,
@@ -70,6 +72,9 @@ module cpu7_ifu(
       // exception
       .exu_ifu_eentry   (exu_ifu_eentry    ),
       .exu_ifu_except   (exu_ifu_except    ),
+      // ertn
+      .exu_ifu_era      (exu_ifu_era       ),
+      .exu_ifu_ertn_e   (exu_ifu_ertn_e    ),
 
       .inst_req         (inst_req          ),
       .inst_addr        (inst_addr         ),

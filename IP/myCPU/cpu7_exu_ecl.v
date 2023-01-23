@@ -76,6 +76,9 @@ module cpu7_exu_ecl(
    // exception
    output                               exu_ifu_except,
    output                               ecl_csr_ale_e,
+   // ertn
+   output                               exu_ifu_ertn_e,
+   
    // ifu stall req
    output                               exu_ifu_stall_req,
    
@@ -94,7 +97,7 @@ module cpu7_exu_ecl(
    wire mul_dispatch_d;
    wire div_dispatch_d;
    wire none_dispatch_d;
-   wire ernt_dispatch_d; //ERET
+   wire ertn_dispatch_d; //ERET
 
 
    wire inst_vld_d;
@@ -113,7 +116,7 @@ module cpu7_exu_ecl(
    assign mul_dispatch_d  = ifu_exu_op_d[`LSOC1K_MUL_RELATED] && inst_vld_d; // && !port0_exception;
    assign div_dispatch_d  = ifu_exu_op_d[`LSOC1K_DIV_RELATED] && inst_vld_d; // && !port0_exception;
    assign none_dispatch_d = (ifu_exu_op_d[`LSOC1K_CSR_RELATED] || ifu_exu_op_d[`LSOC1K_TLB_RELATED] || ifu_exu_op_d[`LSOC1K_CACHE_RELATED]) && inst_vld_d; // || port0_exception ;
-   //assign ernt_dispatch_d = ifu_exu_op_d[`LSOC1K_ERET] && inst_vld_d;
+   assign ertn_dispatch_d = ifu_exu_op_d[`LSOC1K_ERET] && inst_vld_d;
 
    
 
@@ -1025,5 +1028,24 @@ module cpu7_exu_ecl(
    // exu_ifu_stall_req
    //
    assign exu_ifu_stall_req = lsu_stall_req_next | csr_stall_req_next;
+   
+
+
+   //
+   // ernt (eret) 
+   //
+
+   wire ertn_valid_d;
+   wire ertn_valid_e;
+
+   assign ertn_valid_d = ertn_dispatch_d;
+   
+   dff_s #(1) ertn_valid_d2e_reg (
+      .din (ertn_valid_d),
+      .clk (clk),
+      .q   (ertn_valid_e),
+      .se(), .si(), .so());
+   
+   assign exu_ifu_ertn_e = ertn_valid_e;
    
 endmodule // cpu7_exu_ecl

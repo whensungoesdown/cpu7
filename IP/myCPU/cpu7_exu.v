@@ -55,6 +55,9 @@ module cpu7_exu(
    // exception
    output [`GRLEN-1:0]                  exu_ifu_eentry,
    output                               exu_ifu_except,
+   // ertn
+   output [`GRLEN-1:0]                  exu_ifu_era,
+   output                               exu_ifu_ertn_e,
    
    //debug interface
    output [`GRLEN-1:0]                  debug0_wb_pc,
@@ -266,6 +269,8 @@ module cpu7_exu(
 
       .exu_ifu_except           (exu_ifu_except      ),
       .ecl_csr_ale_e            (ecl_csr_ale_e       ),
+      .exu_ifu_ertn_e           (exu_ifu_ertn_e      ),
+      
       .exu_ifu_stall_req        (exu_ifu_stall_req   ),
 
       .exu_ifu_brpc_e           (exu_ifu_brpc_e      ),
@@ -406,6 +411,8 @@ module cpu7_exu(
       .csr_wen           (ecl_csr_wen_m     ),
 
       .csr_eentry        (exu_ifu_eentry    ),
+      .csr_era           (exu_ifu_era       ),
+
       .ecl_csr_ale_e     (ecl_csr_ale_e     ),
       .ifu_exu_pc_e      (ifu_exu_pc_e      )
       );

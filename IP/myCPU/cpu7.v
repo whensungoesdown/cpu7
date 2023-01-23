@@ -99,6 +99,9 @@ module cpu7(
    // exception
    wire [`GRLEN-1:0]                 exu_ifu_eentry;
    wire                              exu_ifu_except;
+   // ertn
+   wire [`GRLEN-1:0]                 exu_ifu_era;
+   wire                              exu_ifu_ertn_e;
    
    
    // Cache Pipeline Bus
@@ -147,9 +150,12 @@ module cpu7(
       .exu_ifu_br_taken        (exu_ifu_br_taken_e ), // BUG, need to change name
       .exu_ifu_br_target       (exu_ifu_brpc_e     ),
 
-      //exception
+      // exception
       .exu_ifu_eentry          (exu_ifu_eentry       ),
       .exu_ifu_except          (exu_ifu_except       ),
+      // ertn
+      .exu_ifu_era             (exu_ifu_era          ),
+      .exu_ifu_ertn_e          (exu_ifu_ertn_e       ),
 
       // now only have one port
       .ifu_exu_valid_d         (ifu_exu_valid_d      ),
@@ -235,6 +241,9 @@ module cpu7(
       //exception
       .exu_ifu_eentry          (exu_ifu_eentry       ),
       .exu_ifu_except          (exu_ifu_except       ),
+      //ertn
+      .exu_ifu_era             (exu_ifu_era          ),
+      .exu_ifu_ertn_e          (exu_ifu_ertn_e       ),
 
       .debug0_wb_pc            (debug0_wb_pc         ),
       .debug0_wb_rf_wen        (debug0_wb_rf_wen     ),

@@ -10,6 +10,7 @@ module cpu7_csr(
    input                                csr_wen,
 
    output [`GRLEN-1:0]                  csr_eentry,
+   output [`GRLEN-1:0]                  csr_era,
    input                                ecl_csr_ale_e,
    input  [`GRLEN-1:0]                  ifu_exu_pc_e
    );
@@ -153,6 +154,7 @@ module cpu7_csr(
       .q   (era),
       .se(), .si(), .so());
    
+   assign csr_era = era;
 
    //
    //  EENTRY 0xc

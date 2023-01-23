@@ -23,6 +23,9 @@ module cpu7_ifu_fdp(
    // exception
    input  wire [`GRLEN-1:0]    exu_ifu_eentry ,
    input  wire                 exu_ifu_except ,
+   // ertn
+   input  wire [`GRLEN-1:0]    exu_ifu_era    ,
+   input  wire                 exu_ifu_ertn_e ,
 
    // group o
    output wire                        fdp_dec_valid  ,
@@ -49,11 +52,15 @@ module cpu7_ifu_fdp(
    wire [31:0] inst;
 
 
+   wire [`GRLEN-1:0] pcbf_btwn_mux;
+   
    wire ifu_pcbf_sel_init_bf_l;
    wire ifu_pcbf_sel_old_bf_l;
    wire ifu_pcbf_sel_pcinc_bf_l;
    wire ifu_pcbf_sel_brpc_bf_l;
+   wire ifu_pcbf_sel_usemux1_l;
    wire ifu_pcbf_sel_excpc_bf_l;
+   wire ifu_pcbf_sel_ertnpc_bf_l;
 
    //.o_valid          ({de1_port2_valid,de1_port1_valid,de1_port0_valid}),
    // only use port0
@@ -78,7 +85,7 @@ module cpu7_ifu_fdp(
    // if exu ask ifu to stall, the pc_bf takes bc_f and the instruction passed
    // down the pipe should be invalid
    //assign fdp_dec_valid = inst_valid;
-   assign fdp_dec_valid = inst_valid & ~exu_ifu_stall_req & ~br_taken & ~exu_ifu_except; // pc_f shoudl not be passed to pc_d if a branch is taken at _e.
+   assign fdp_dec_valid = inst_valid & ~exu_ifu_stall_req & ~br_taken & ~exu_ifu_except & ~exu_ifu_ertn_e; // pc_f shoudl not be passed to pc_d if a branch is taken at _e.
    // or should not if exception happen
 
    //===================================================
@@ -192,35 +199,66 @@ module cpu7_ifu_fdp(
 
    // when branch taken, inst_cancel need to be signal
    // so that the new target instruction can be fetched instead of the one previously requested
-   assign inst_cancel = br_taken | exu_ifu_except;
+   assign inst_cancel = br_taken | exu_ifu_except | exu_ifu_ertn_e;
 
    assign ifu_pcbf_sel_init_bf_l = ~reset;
    // use inst_valid instead of inst_addr_ok, should name it fcl_fdp_pcbf_sel_old_l_bf
    //assign ifu_pcbf_sel_old_bf_l = inst_valid || reset || br_taken || exu_ifu_except;
    //assign ifu_pcbf_sel_old_bf_l = (inst_valid || reset || br_taken || exu_ifu_except) & (~exu_ifu_stall_req);
-   assign ifu_pcbf_sel_old_bf_l = ((inst_valid || reset || br_taken) & (~exu_ifu_stall_req)) | exu_ifu_except; // exception need ifu to fetch instruction from eentry
+   assign ifu_pcbf_sel_old_bf_l = ((inst_valid || reset || br_taken || exu_ifu_ertn_e) & (~exu_ifu_stall_req)) | exu_ifu_except; // exception need ifu to fetch instruction from eentry
    
    //assign ifu_pcbf_sel_pcinc_bf_l = ~(inst_valid && ~br_taken);  /// ??? br_taken never comes along with inst_valid, br_taken_e
-   assign ifu_pcbf_sel_pcinc_bf_l = ~(inst_valid && ~br_taken && ~exu_ifu_except) | exu_ifu_stall_req;  /// ??? br_taken never comes along with inst_valid, br_taken_e
+   assign ifu_pcbf_sel_pcinc_bf_l = ~(inst_valid && ~br_taken && ~exu_ifu_except && ~exu_ifu_ertn_e) | exu_ifu_stall_req;  /// ??? br_taken never comes along with inst_valid, br_taken_e
    //assign ifu_pcbf_sel_pcinc_bf_l = ~inst_valid;
    assign ifu_pcbf_sel_brpc_bf_l = ~br_taken; 
+
+
+   assign ifu_pcbf_sel_usemux1_l = ifu_pcbf_sel_init_bf_l  &
+				   ifu_pcbf_sel_old_bf_l   &
+				   ifu_pcbf_sel_pcinc_bf_l &
+				   ifu_pcbf_sel_brpc_bf_l;
+   
    //assign ifu_pcbf_sel_brpc_bf_l = 1'b1;
    assign ifu_pcbf_sel_excpc_bf_l = ~exu_ifu_except;
+   assign ifu_pcbf_sel_ertnpc_bf_l = ~exu_ifu_ertn_e;
    
 
-   dp_mux5ds #(32) pcbf_mux(
-      .dout (pc_bf),
-      .in0  (pc_init),
-      .in1  (pc_f),
-      .in2  (pcinc_f),
-      .in3  (br_target),
-      .in4  (exu_ifu_eentry),
-      .sel0_l (ifu_pcbf_sel_init_bf_l),
-      .sel1_l (ifu_pcbf_sel_old_bf_l), 
-      .sel2_l (ifu_pcbf_sel_pcinc_bf_l),
-      .sel3_l (ifu_pcbf_sel_brpc_bf_l),
-      .sel4_l (ifu_pcbf_sel_excpc_bf_l));
+//   dp_mux5ds #(32) pcbf_mux(
+//      .dout (pc_bf),
+//      .in0  (pc_init),
+//      .in1  (pc_f),
+//      .in2  (pcinc_f),
+//      .in3  (br_target),
+//      .in4  (exu_ifu_eentry),
+//      .sel0_l (ifu_pcbf_sel_init_bf_l),
+//      .sel1_l (ifu_pcbf_sel_old_bf_l), 
+//      .sel2_l (ifu_pcbf_sel_pcinc_bf_l),
+//      .sel3_l (ifu_pcbf_sel_brpc_bf_l),
+//      .sel4_l (ifu_pcbf_sel_excpc_bf_l));
       
+   dp_mux4ds #(32) pcbf_mux_1(
+      .dout    (pcbf_btwn_mux),
+      .in0     (pc_init),
+      .in1     (pc_f),
+      .in2     (pcinc_f),
+      .in3     (br_target),
+      .sel0_l  (ifu_pcbf_sel_init_bf_l),
+      .sel1_l  (ifu_pcbf_sel_old_bf_l),
+      .sel2_l  (ifu_pcbf_sel_pcinc_bf_l),
+      .sel3_l  (ifu_pcbf_sel_brpc_bf_l));
+
+   dp_mux3ds #(32) pcbf_mux_2(
+      .dout    (pc_bf),
+      .in0     (pcbf_btwn_mux),
+      .in1     (exu_ifu_eentry),
+      .in2     (exu_ifu_era),
+      .sel0_l  (ifu_pcbf_sel_usemux1_l),
+      .sel1_l  (ifu_pcbf_sel_excpc_bf_l),
+      .sel2_l  (ifu_pcbf_sel_ertnpc_bf_l));
+
+
+
+   
 
    //===================================================
    // Fetched Instruction Datapath
