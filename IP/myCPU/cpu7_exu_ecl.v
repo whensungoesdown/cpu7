@@ -87,7 +87,6 @@ module cpu7_exu_ecl(
    output [4:0]                         ecl_irf_rd_w
    );
 
-   wire [`EX_SR-1 : 0] sr_ur_d;
 
    wire alu_dispatch_d;
    wire bru_dispatch_d;
@@ -95,15 +94,7 @@ module cpu7_exu_ecl(
    wire mul_dispatch_d;
    wire div_dispatch_d;
    wire none_dispatch_d;
-
-   
-   // uty: test todo: duplicated signals
-   wire alu_valid_e;
-   wire bru_valid_e;
-   wire lsu_valid_e;
-   wire mul_valid_e;
-   wire div_valid_e;
-   wire none_valid_e;
+   wire ernt_dispatch_d; //ERET
 
 
    wire inst_vld_d;
@@ -122,15 +113,7 @@ module cpu7_exu_ecl(
    assign mul_dispatch_d  = ifu_exu_op_d[`LSOC1K_MUL_RELATED] && inst_vld_d; // && !port0_exception;
    assign div_dispatch_d  = ifu_exu_op_d[`LSOC1K_DIV_RELATED] && inst_vld_d; // && !port0_exception;
    assign none_dispatch_d = (ifu_exu_op_d[`LSOC1K_CSR_RELATED] || ifu_exu_op_d[`LSOC1K_TLB_RELATED] || ifu_exu_op_d[`LSOC1K_CACHE_RELATED]) && inst_vld_d; // || port0_exception ;
-
-   assign sr_ur_d         =  alu_dispatch_d   ? `EX_ALU0  :
-			     bru_dispatch_d   ? `EX_BRU   :
-			     //(lsu_dispatch && !tlb_related_0)   ? `EX_LSU   :
-			     lsu_dispatch_d   ? `EX_LSU   :
-			     mul_dispatch_d   ? `EX_MUL   :
-			     div_dispatch_d   ? `EX_DIV   :
-			     none_dispatch_d  ? `EX_NONE0 :
-			     `EX_SR'd0 ;
+   //assign ernt_dispatch_d = ifu_exu_op_d[`LSOC1K_ERET] && inst_vld_d;
 
    
 
@@ -318,6 +301,7 @@ module cpu7_exu_ecl(
    ///////////////
 
    wire lsu_valid_d;
+   wire lsu_valid_e;
    
    assign lsu_valid_d = lsu_dispatch_d; // & ifu_exu_valid_d; 
    
