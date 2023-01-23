@@ -567,6 +567,11 @@ do
             mkdir -p ./obj/func
             mkdir -p ./log/func
             ;;
+        func/func_uty62_branch_next_instruction_executed_mistake) 
+            RUN_FUNC=y
+            mkdir -p ./obj/func
+            mkdir -p ./log/func
+            ;;
         my_program)
             RUN_FUNC=n 
             RUN_C=y

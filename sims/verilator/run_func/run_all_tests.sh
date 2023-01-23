@@ -432,3 +432,10 @@ movetotrash ./obj/func/
 ./configure.sh -run func/func_uty61_ertn --disable-trace-comp
 make soft_compile
 make simulation_run_func
+
+
+echo -e "\n\n\nTest func_uty62_branch_next_instruction_executed_mistake\n"
+movetotrash ./obj/func/
+./configure.sh -run func/func_uty62_branch_next_instruction_executed_mistake --disable-trace-comp
+make soft_compile
+make simulation_run_func
