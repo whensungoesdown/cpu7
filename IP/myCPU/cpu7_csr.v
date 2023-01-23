@@ -10,10 +10,14 @@ module cpu7_csr(
    input                                csr_wen,
 
    output [`GRLEN-1:0]                  csr_eentry,
-   input                                ecl_csr_except
+   input                                ecl_csr_ale_e
+
+   //input  [`GRLEN-1:0]                  ecl_csr_ale_pc_e
    );
 
 
+   wire exception;
+   assign exception = ecl_csr_ale_e; // | other exception
 
    //
    //  CRMD
@@ -34,11 +38,11 @@ module cpu7_csr(
       .dout (crmd_ie_nxt),
       .in0  (crmd_ie_wdata),
       .in1  (1'b0),
-      .sel  (ecl_csr_except));
+      .sel  (exception));
    
    dffe_s #(1) crmd_ie_reg (
       .din (crmd_ie_nxt),
-      .en  (crmd_wen | ecl_csr_except),
+      .en  (crmd_wen | exception),
       .clk (clk),
       .q   (crmd_ie),
       .se(), .si(), .so());
@@ -53,11 +57,11 @@ module cpu7_csr(
       .dout (crmd_plv_nxt),
       .in0  (crmd_plv_wdata),
       .in1  (2'b0),
-      .sel  (ecl_csr_except));
+      .sel  (exception));
    
    dffe_s #(2) crmd_plv_reg (
       .din (crmd_plv_nxt),
-      .en  (crmd_wen | ecl_csr_except),
+      .en  (crmd_wen | exception),
       .clk (clk),
       .q   (crmd_plv),
       .se(), .si(), .so());
@@ -87,11 +91,11 @@ module cpu7_csr(
       .dout (prmd_pie_nxt),
       .in0  (prmd_pie_wdata),
       .in1  (crmd_ie),
-      .sel  (ecl_csr_except));
+      .sel  (exception));
    
    dffe_s #(1) prmd_pie_reg (
       .din (prmd_pie_nxt),
-      .en  (prmd_wen | ecl_csr_except),
+      .en  (prmd_wen | exception),
       .clk (clk),
       .q   (prmd_pie),
       .se(), .si(), .so());
@@ -106,11 +110,11 @@ module cpu7_csr(
       .dout (prmd_pplv_nxt),
       .in0  (prmd_pplv_wdata),
       .in1  (crmd_plv),
-      .sel  (ecl_csr_except));
+      .sel  (exception));
 
    dffe_s #(2) prmd_pplv_reg (
       .din (prmd_pplv_nxt),
-      .en  (prmd_wen | ecl_csr_except),
+      .en  (prmd_wen | exception),
       .clk (clk),
       .q   (prmd_pplv),
       .se(), .si(), .so());
