@@ -406,7 +406,8 @@ module cpu7_exu(
       .csr_wen           (ecl_csr_wen_m     ),
 
       .csr_eentry        (exu_ifu_eentry    ),
-      .ecl_csr_ale_e     (ecl_csr_ale_e     )
+      .ecl_csr_ale_e     (ecl_csr_ale_e     ),
+      .ifu_exu_pc_e      (ifu_exu_pc_e      )
       );
    
    

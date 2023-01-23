@@ -10,9 +10,8 @@ module cpu7_csr(
    input                                csr_wen,
 
    output [`GRLEN-1:0]                  csr_eentry,
-   input                                ecl_csr_ale_e
-
-   //input  [`GRLEN-1:0]                  ecl_csr_ale_pc_e
+   input                                ecl_csr_ale_e,
+   input  [`GRLEN-1:0]                  ifu_exu_pc_e
    );
 
 
@@ -132,16 +131,24 @@ module cpu7_csr(
    //
 
    wire [`GRLEN-1:0]       era;
+   wire [`GRLEN-1:0]       era_wdata;
    wire [`GRLEN-1:0]       era_nxt;
    wire                    era_wen;
 
-   assign era_nxt = csr_wdata;
    assign era_wen = (csr_waddr == `LSOC1K_CSR_EPC) && csr_wen;  // EPC is ERA
 
+   assign era_wdata = csr_wdata;
+
+   // larger mux when more types of exception supported
+   dp_mux2es #(`GRLEN) era_mux(
+      .dout (era_nxt),
+      .in0  (era_wdata),
+      .in1  (ifu_exu_pc_e),
+      .sel  (ecl_csr_ale_e));
 
    dffe_s #(`GRLEN) era_reg (
       .din (era_nxt),
-      .en  (era_wen),
+      .en  (era_wen | exception),
       .clk (clk),
       .q   (era),
       .se(), .si(), .so());
