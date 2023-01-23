@@ -411,3 +411,10 @@ movetotrash ./obj/func/
 ./configure.sh -run func/func_uty58_exception_crmd2prmd --disable-trace-comp
 make soft_compile
 make simulation_run_func
+
+
+echo -e "\n\n\nTest func_uty59_csr.era\n"
+movetotrash ./obj/func/
+./configure.sh -run func/func_uty59_csr.era --disable-trace-comp
+make soft_compile
+make simulation_run_func

@@ -124,7 +124,7 @@ module cpu7_csr(
 
    
    //
-   //  ERA
+   //  ERA 0x6
    //
 
    wire [`GRLEN-1:0]       era;
@@ -144,7 +144,7 @@ module cpu7_csr(
    
 
    //
-   //  EENTRY
+   //  EENTRY 0xc
    //
 
    wire [`GRLEN-1:0]       eentry;
