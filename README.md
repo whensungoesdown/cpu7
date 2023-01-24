@@ -2,7 +2,7 @@
 
 CPU7 is my seventh CPU project. It is still a single-issue pipelined core. The goal is to rewrite the modules following OpenSPARC's coding style. These modules have also been reorganized into IFU and EXU for the next version of multi-issue and O-o-O.
 
-At the same time, I wanted the process to be LoongArch based, and I was studying [CHIPLAB](https://gitee.com/loongson-edu/chiplab). Therefore CHIPLAB was the starting point of this project. However, the datapath and control logic modules are rewritten for the core. Decode, and functional modules such as ALU, and MUL are mostly reused.
+I wanted the process to be LoongArch based, and I was studying [CHIPLAB](https://gitee.com/loongson-edu/chiplab). So CHIPLAB was the starting point of this project. The datapath and control logic modules are rewritten. Decode, and functional modules such as ALU, and MUL are mostly reused.
 
 More blogs are kept at:
 - https://whensungoesdown.github.io
@@ -44,7 +44,6 @@ _f _d _e _m _w
                                                                   |           |
                                                                   +-----------+
 `````
-
 
 ## LA32 Instructions
 
@@ -104,6 +103,13 @@ _f _d _e _m _w
 `````
   CSRRD CSRWR CSRXCHG
 `````
+
+- Misc
+
+`````
+  ERTN
+`````
+
 ### Implementing...
 
 - Integer Divide Instructions
@@ -141,8 +147,25 @@ _f _d _e _m _w
 
   RDCNTV{L/H}.W RDCNTID
 
-  ERTN IDLE
+  IDLE
 `````
+
+## CSR registers
+
+`````
+  CRMD.ie CRMD.plv
+  
+  PRMD.pie PRMD.pplv
+
+  EENTRY
+
+  ERA
+`````
+
+## Exceptions
+
+- Address Misaligned
+
 
 ## Build and Test
 
@@ -200,7 +223,17 @@ u@unamed:~/prjs/cpu7/software/func$ tree -L 1
 ├── func_uty51_ld.hu
 ├── func_uty52_st.b
 ├── func_uty53_st.h
+├── func_uty54_addrmisalignexception
+├── func_uty55_csr.eentry
+├── func_uty56_ld_ale
+├── func_uty57_csr.prmd
+├── func_uty58_exception_crmd2prmd
+├── func_uty59_csr.era
 ├── func_uty5_jirl
+├── func_uty60_exception.ale_csr_pc2era
+├── func_uty61_ertn
+├── func_uty62_branch_next_instruction_executed_mistake
+├── func_uty63_ertn_prmd2crmd
 ├── func_uty6_beq_testbyp
 ├── func_uty7_beq_testbyp1cycle
 ├── func_uty8_mulw
