@@ -33,7 +33,9 @@ start:
     ld.h       $r6, $r6, 0x0
 
     addi.w     $r5, $r5, 0xa     # return from exception handler, r5 should be 0x50 if success
-    beq        $r0, $r0, program_end
+
+loop:                            # program ends here
+    beq        $r0, $r0, loop
     nop
     nop
     nop
@@ -63,5 +65,3 @@ error:
     addi.w     $r5, $r5, 0x20     # r5 = 0x50 if go through success, otherwise 0x20
 
     ertn                          # return from exception                      
-
-program_end:    

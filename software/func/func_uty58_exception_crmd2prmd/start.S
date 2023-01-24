@@ -57,3 +57,6 @@ error:
 
 #    addi.w     $r5, $r0, 0x20
 #    addi.w     $r5, $r5, 0x3a
+
+loop:                            # program ends here
+    beq        $r0, $r0, loop

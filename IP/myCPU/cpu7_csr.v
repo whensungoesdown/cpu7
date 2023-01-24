@@ -1,5 +1,14 @@
 `include "common.vh"
 
+/////
+//
+//  All the exceptions are handled at _e stage, including ale, illinstr, badaddr
+//
+//  For example, illegal instruction exception happens at _d stage. Handle different types of exception
+//  at different stages make things more complicated. Should choose between pc_d and pc_e to store.
+//  And exception happened at _e has a higher priority, becasue it is from the elderly instruction.
+//   
+//
 module cpu7_csr(
    input                                clk,
    input                                resetn,
@@ -12,13 +21,14 @@ module cpu7_csr(
    output [`GRLEN-1:0]                  csr_eentry,
    output [`GRLEN-1:0]                  csr_era,
    input                                ecl_csr_ale_e,
+   input                                ecl_csr_illinst_e,
    input  [`GRLEN-1:0]                  ifu_exu_pc_e,
    input                                ecl_csr_ertn_e
    );
 
 
    wire exception;
-   assign exception = ecl_csr_ale_e; // | other exception
+   assign exception = ecl_csr_ale_e | ecl_csr_illinst_e; // | other exception
 
    //
    //  CRMD
@@ -176,12 +186,11 @@ module cpu7_csr(
 
    assign era_wdata = csr_wdata;
 
-   // larger mux when more types of exception supported
    dp_mux2es #(`GRLEN) era_mux(
       .dout (era_nxt),
       .in0  (era_wdata),
       .in1  (ifu_exu_pc_e),
-      .sel  (ecl_csr_ale_e));
+      .sel  (exception));
 
    dffe_s #(`GRLEN) era_reg (
       .din (era_nxt),

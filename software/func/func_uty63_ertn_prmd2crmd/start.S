@@ -36,7 +36,8 @@ start:
     csrrd      $r3, 0x0          # shoudl return 7, crmd.ie = 1'b1 crmd.plv = 2'b11
     add.w      $r5, $r5, $r3     # r5 should be 0x50+7 = 0x57
     addi.w     $r5, $r5, 0x3     
-    beq        $r0, $r0, program_end
+loop:
+    beq        $r0, $r0, loop
     nop
     nop
     nop
@@ -65,4 +66,3 @@ error:
 
     ertn                          # return from exception                      
 
-program_end:    

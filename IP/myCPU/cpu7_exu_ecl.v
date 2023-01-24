@@ -76,6 +76,7 @@ module cpu7_exu_ecl(
    // exception
    output                               exu_ifu_except,
    output                               ecl_csr_ale_e,
+   output                               ecl_csr_illinst_e,
    // ertn
    output                               exu_ifu_ertn_e,
    output                               ecl_csr_ertn_e,
@@ -119,7 +120,6 @@ module cpu7_exu_ecl(
    assign none_dispatch_d = (ifu_exu_op_d[`LSOC1K_CSR_RELATED] || ifu_exu_op_d[`LSOC1K_TLB_RELATED] || ifu_exu_op_d[`LSOC1K_CACHE_RELATED]) && inst_vld_d; // || port0_exception ;
    assign ertn_dispatch_d = ifu_exu_op_d[`LSOC1K_ERET] && inst_vld_d;
 
-   
 
    ////register interface
    // common registers
@@ -129,6 +129,21 @@ module cpu7_exu_ecl(
    //assign raddr1_1 = is_port1_op[`LSOC1K_RD_READ] ? `GET_RD(is_port1_inst) : `GET_RK(is_port1_inst);
    //assign raddr2_0 = port0_triple_read ? `GET_RK(is_port0_inst) : is_port2_op[`LSOC1K_RD2RJ] ? `GET_RD(is_port2_inst) : `GET_RJ(is_port2_inst);
    //assign raddr2_1 = port1_triple_read ? `GET_RK(is_port1_inst) : `GET_RD(is_port2_inst);
+
+
+   wire illinst_d;
+   wire illinst_e;
+
+   // illegal instruction exception
+   assign illinst_d = ifu_exu_op_d[`LSOC1K_INE] && inst_vld_d;
+   
+   dff_s #(1) illinst_d2e_reg (
+      .din (illinst_d),
+      .clk (clk),
+      .q   (illegal_e),
+      .se(), .si(), .so());
+
+   assign ecl_csr_illinst_e = illegal_e;
 
 
 
@@ -1021,7 +1036,7 @@ module cpu7_exu_ecl(
    // excetpion
    //
 
-   assign exu_ifu_except = lsu_ecl_ale_e;
+   assign exu_ifu_except = lsu_ecl_ale_e | ecl_csr_illinst_e;
    assign ecl_csr_ale_e = lsu_ecl_ale_e;
    
 
