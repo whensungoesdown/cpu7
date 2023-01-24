@@ -166,6 +166,7 @@ _f _d _e _m _w
 
 - Load/Store Address Misaligned
 
+- Illegal Instruction
 
 
 
