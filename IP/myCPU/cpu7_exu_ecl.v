@@ -78,6 +78,7 @@ module cpu7_exu_ecl(
    output                               ecl_csr_ale_e,
    // ertn
    output                               exu_ifu_ertn_e,
+   output                               ecl_csr_ertn_e,
    
    // ifu stall req
    output                               exu_ifu_stall_req,
@@ -1047,5 +1048,6 @@ module cpu7_exu_ecl(
       .se(), .si(), .so());
    
    assign exu_ifu_ertn_e = ertn_valid_e;
+   assign ecl_csr_ertn_e = ertn_valid_e;
    
 endmodule // cpu7_exu_ecl

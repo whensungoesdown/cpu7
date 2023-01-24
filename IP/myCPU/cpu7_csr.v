@@ -12,7 +12,8 @@ module cpu7_csr(
    output [`GRLEN-1:0]                  csr_eentry,
    output [`GRLEN-1:0]                  csr_era,
    input                                ecl_csr_ale_e,
-   input  [`GRLEN-1:0]                  ifu_exu_pc_e
+   input  [`GRLEN-1:0]                  ifu_exu_pc_e,
+   input                                ecl_csr_ertn_e
    );
 
 
@@ -34,18 +35,36 @@ module cpu7_csr(
 
    assign crmd_ie_wdata = csr_wdata[`CRMD_IE];
 
-   dp_mux2es #(1) crmd_ie_mux(
-      .dout (crmd_ie_nxt),
-      .in0  (crmd_ie_wdata),
-      .in1  (1'b0),
-      .sel  (exception));
+//   dp_mux2es #(1) crmd_ie_mux(
+//      .dout (crmd_ie_nxt),
+//      .in0  (crmd_ie_wdata),
+//      .in1  (1'b0),
+//      .sel  (exception));
+
+   wire crmd_ie_mux_sel_wdata_l;
+   wire crmd_ie_mux_sel_zero_l;
+   wire crmd_ie_mux_sel_prmdpie_l;
    
+   assign crmd_ie_mux_sel_wdata_l = ~crmd_wen;
+   assign crmd_ie_mux_sel_zero_l = ~exception;
+   assign crmd_ie_mux_sel_prmdpie_l = ~ecl_csr_ertn_e;
+   
+   dp_mux3ds #(1) crmd_ie_mux(
+      .dout   (crmd_ie_nxt),
+      .in0    (crmd_ie_wdata),
+      .in1    (1'b0),
+      .in2    (prmd_pie),
+      .sel0_l (crmd_ie_mux_sel_wdata_l),
+      .sel1_l (crmd_ie_mux_sel_zero_l),
+      .sel2_l (crmd_ie_mux_sel_prmdpie_l));
+         
    dffe_s #(1) crmd_ie_reg (
       .din (crmd_ie_nxt),
-      .en  (crmd_wen | exception),
+      .en  (crmd_wen | exception | ecl_csr_ertn_e),
       .clk (clk),
       .q   (crmd_ie),
       .se(), .si(), .so());
+   
    
    wire [1:0]             crmd_plv;
    wire [1:0]             crmd_plv_wdata;
@@ -53,15 +72,32 @@ module cpu7_csr(
 
    assign crmd_plv_wdata = csr_wdata[`CRMD_PLV];
 
-   dp_mux2es #(2) crmd_plv_mux(
-      .dout (crmd_plv_nxt),
-      .in0  (crmd_plv_wdata),
-      .in1  (2'b0),
-      .sel  (exception));
+//   dp_mux2es #(2) crmd_plv_mux(
+//      .dout (crmd_plv_nxt),
+//      .in0  (crmd_plv_wdata),
+//      .in1  (2'b0),
+//      .sel  (exception));
+
+   wire crmd_plv_mux_sel_wdata_l;
+   wire crmd_plv_mux_sel_zero_l;
+   wire crmd_plv_mux_sel_prmdpplv_l;
+
+   assign crmd_plv_mux_sel_wdata_l = ~crmd_wen;
+   assign crmd_plv_mux_sel_zero_l = ~exception;
+   assign crmd_plv_mux_sel_prmdpplv_l = ~ecl_csr_ertn_e;
+  
+   dp_mux3ds #(2) crmd_plv_mux(
+      .dout   (crmd_plv_nxt),
+      .in0    (crmd_plv_wdata),
+      .in1    (2'b0),
+      .in2    (prmd_pplv),
+      .sel0_l (crmd_plv_mux_sel_wdata_l),
+      .sel1_l (crmd_plv_mux_sel_zero_l),
+      .sel2_l (crmd_plv_mux_sel_prmdpplv_l));
    
    dffe_s #(2) crmd_plv_reg (
       .din (crmd_plv_nxt),
-      .en  (crmd_wen | exception),
+      .en  (crmd_wen | exception | ecl_csr_ertn_e),
       .clk (clk),
       .q   (crmd_plv),
       .se(), .si(), .so());
