@@ -164,11 +164,10 @@ _f _d _e _m _w
 
 ## Exceptions
 
-- Address Misaligned
+- Load/Store Address Misaligned
 
 
 
-**********************************************************************
 
 
 
