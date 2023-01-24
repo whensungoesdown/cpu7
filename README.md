@@ -1,8 +1,8 @@
 # CPU7 (LoongArch32 ISA)
 
-CPU7 is my seventh CPU project. It is still a single-issue pipelined core. The goal is to rewrite the modules following OpenSPARC's coding style. These modules have also been reorganized into IFU and EXU for the next version of multi-issue and O-o-O.
+CPU7 is my seventh CPU project. It is still a single-issue pipelined core. The goal is to rewrite the modules following OpenSPARC's coding style. These modules have also been reorganized into IFU and EXU for the planning multi-issue O-o-O core.
 
-I wanted the process to be LoongArch based, and I was studying [CHIPLAB](https://gitee.com/loongson-edu/chiplab). So CHIPLAB was the starting point of this project. The datapath and control logic modules are rewritten. Decode, and functional modules such as ALU, and MUL are mostly reused.
+I wanted this core to be LoongArch based, and I was studying [CHIPLAB](https://gitee.com/loongson-edu/chiplab). So CHIPLAB was the starting point of this project. The datapath and control logic modules are rewritten. Decode, and functional modules such as ALU, and MUL are mostly reused.
 
 More blogs are kept at:
 - https://whensungoesdown.github.io
@@ -18,31 +18,31 @@ _f _d _e _m _w
 
 `````c
 
-                                                               +----------------------------------------------+                               
-                                                               | EXU               +--------+    +-------+    |
-                                                               |     +---------+   |        |    |       |    |
-                                                               |     |         |   |        |    |  alu  |    |
-                +--------------------------------------+       |     |   csr   |   |        |    +-------+    |
-                |IFU                                   |       |     |         |   |        |    +-------+    |
- +--------+     |       +----------+   +------+        |       |     +---------+   |        |    |  bru  |    |
- |        | - - | - - - |          |   |      |        |       |     +---------+   |  ecl   |    |       |    |
- | icache |     |       | ifu_fdp  |   |decode|  ...   | >  >  |     |         |   |   &    |    +-------+    |
- |        | - - | - - - |          |   |      |        |       |     | regfile |   |  byp   |    +-------+    |
- +--------+     |       +----------+   +------+        |       |     |         |   |        |    |       |    |
-                |                                      |       |     +-------- +   |        |    |  mul  |    |
-                |                                      |       |                   |        |    +-------+    |
-                +--------------------------------------+       |  +-----------+    |        |    +-------+    |          
-                                                               |  |           |    |        |    |  div  |    |
-                                                               |  |    lsu    |    |        |    |       |    |
-                                                               |  |           |    +--------+    +-------+    |
-                                                               |  +------------                               |
-                                                               +----|------|----------------------------------+
-                                                                    |      |
-                                                                  +-----------+
-                                                                  |           |
-                                                                  |   dcache  |
-                                                                  |           |
-                                                                  +-----------+
+                                                 +----------------------------------------------+                               
+                                                 | EXU               +--------+    +-------+    |
+                                                 |     +---------+   |        |    |       |    |
+                                                 |     |         |   |        |    |  alu  |    |
+              +-----------------------------+    |     |   csr   |   |        |    +-------+    |
+              |IFU                          |    |     |         |   |        |    +-------+    |
+ +--------+   |    +----------+  +------+   |    |     +---------+   |        |    |  bru  |    |
+ |        |-- |    |          |  |      |   |    |     +---------+   |  ecl   |    |       |    |
+ | icache |   | -> | ifu_fdp  |->|decode|.. | -> |     |         |   |   &    |    +-------+    |
+ |        |-- |    |          |  |      |   |    |     | regfile |   |  byp   |    +-------+    |
+ +--------+   |    +----------+  +------+   |    |     |         |   |        |    |       |    |
+              |                             |    |     +-------- +   |        |    |  mul  |    |
+              |                             |    |                   |        |    +-------+    |
+              +-----------------------------+    |  +-----------+    |        |    +-------+    |          
+                                                 |  |           |    |        |    |  div  |    |
+                                                 |  |    lsu    |    |        |    |       |    |
+                                                 |  |           |    +--------+    +-------+    |
+                                                 |  +------------                               |
+                                                 +----|------|----------------------------------+
+                                                      |      |
+                                                    +-----------+
+                                                    |           |
+                                                    |   dcache  |
+                                                    |           |
+                                                    +-----------+
 `````
 
 ## LA32 Instructions
