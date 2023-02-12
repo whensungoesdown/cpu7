@@ -221,11 +221,52 @@ module cpu7_csr(
 
    assign csr_eentry = eentry;
 
+
+   
+
+   //
+   //  SELF DEFINED: BSEC (BOOT SECURITY) 0x100
+   //
+
+   wire [`GRLEN-1:0]       bsec;
+   wire [`GRLEN-1:0]       bsec_nxt;
+   wire                    bsec_wen;
+
+   assign bsec_wen = (csr_waddr == `LSOC1K_CSR_BSEC) && csr_wen;
+
+   // bit 0, eeprom flush
+   wire                    bsec_ef;
+   wire                    bsec_ef_wdata;
+   wire                    bsec_ef_nxt;
+
+   assign bsec_ef_wdata = csr_wdata[`LSOC1K_BSEC_EF];
+   assign bsec_ef_nxt = bsec_ef_wdata | bsec_ef;
+   
+   dffre_s #(1) bsec_ef_reg (
+      .din (bsec_ef_nxt),
+      .en  (bsec_wen),
+      .clk (clk),
+      .rst (~resetn),
+      .q   (bsec_ef),
+      .se(), .si(), .so());
+
+   
+   assign bsec = {
+		 31'b0,
+                 bsec_ef
+		 };
+
+
+   
+
+
+   
    
    assign csr_rdata = {`GRLEN{csr_raddr == `LSOC1K_CSR_CRMD}}  & crmd   |
 		      {`GRLEN{csr_raddr == `LSOC1K_CSR_PRMD}}  & prmd   |
 		      {`GRLEN{csr_raddr == `LSOC1K_CSR_EPC}}   & era    |
 		      {`GRLEN{csr_raddr == `LSOC1K_CSR_EBASE}} & eentry |
+		      {`GRLEN{csr_raddr == `LSOC1K_CSR_BSEC}}  & bsec   |
 		      `GRLEN'b0;
 
 endmodule // cpu7_csr

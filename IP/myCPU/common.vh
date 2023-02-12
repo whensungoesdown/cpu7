@@ -71,6 +71,9 @@
 `define LSOC1K_CSR_DEPC          `LSOC1K_CSR_BIT'h0_5_0_1 //
 `define LSOC1K_CSR_DSAVE         `LSOC1K_CSR_BIT'h0_5_0_2 //
 
+// self defined
+`define LSOC1K_CSR_BSEC          `LSOC1K_CSR_BIT'h0_1_0_0 //
+
 //CPUNUM
 `define COREID_WIDTH        9
 `define CPU_COREID          9'h0
@@ -297,6 +300,9 @@
 // PMCNT 0x2_0_1 + 2N
 `define LSOC1K_PMCNT_COUNT  63:0
 
+
+// BSEC (BOOT SECURITY) 0x1_0_0
+`define LSOC1K_BSEC_EF       0
 
 // Status (12, 0)
 `define STATUS_CU1          29
