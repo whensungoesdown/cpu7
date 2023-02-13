@@ -140,10 +140,10 @@ module cpu7_exu_ecl(
    dff_s #(1) illinst_d2e_reg (
       .din (illinst_d),
       .clk (clk),
-      .q   (illegal_e),
+      .q   (illinst_e),
       .se(), .si(), .so());
 
-   assign ecl_csr_illinst_e = illegal_e;
+   assign ecl_csr_illinst_e = illinst_e;
 
 
 
