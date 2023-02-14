@@ -73,7 +73,7 @@ wire [ 3:0] awscway ;
 wire icache_init_finish;
 wire dcache_init_finish;
 
-`LSOC1K_DECL_BHT_RAMS_T;
+`LSOC1K_DECL_BHT_RAMS_T
 
 // icache ram
 wire [`I_WAY_NUM-1        :0] icache_tag_clk_en;

@@ -465,7 +465,8 @@ module cg_cell_wrap(
 
 `ifdef FUNC_EMUL_LIB
 reg lat_en /*verilator clock_enable*/;
-always_latch begin
+//always_latch begin
+always @* begin
 if (clock_in == 1'b0) begin
     lat_en = enable | test_enable;
 end

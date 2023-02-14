@@ -926,10 +926,20 @@ always @(posedge clk) begin
     wr_buff_atom <= atom_req_reg;
 end
 
-assign wr_buff_wdata_src = (atom_req_reg)? hit_rdata : data_wdata_reg;
-assign wr_buff_wdata     = (wr_buff_data & ~wr_bit_mask & {`GRLEN{wr_buff_hit}}) | (wr_buff_wdata_src & wr_bit_mask);
 
-assign wr_buff_ram_wdata = (wr_buff_atom)? atom_st_data : wr_buff_data;
+
+   // uty: test
+   always @(posedge clk) begin
+      wr_buff_wdata_src <= (atom_req_reg)? hit_rdata : data_wdata_reg;
+      wr_buff_wdata     <= (wr_buff_data & ~wr_bit_mask & {`GRLEN{wr_buff_hit}}) | (wr_buff_wdata_src & wr_bit_mask);
+
+      wr_buff_ram_wdata <= (wr_buff_atom)? atom_st_data : wr_buff_data;
+   end
+   
+//assign wr_buff_wdata_src = (atom_req_reg)? hit_rdata : data_wdata_reg;
+//assign wr_buff_wdata     = (wr_buff_data & ~wr_bit_mask & {`GRLEN{wr_buff_hit}}) | (wr_buff_wdata_src & wr_bit_mask);
+//
+//assign wr_buff_ram_wdata = (wr_buff_atom)? atom_st_data : wr_buff_data;
 // ------------------------- END --------------------------
 
 

@@ -72,7 +72,9 @@ wire                 lru_wen    ;
 wire [ENTRY_IDX-1:0] lru_w_index;
 wire [5          :0] lru_w_data ;
 
-assign same_page   = push_paddr[`PABITS-1:12] == cur_paddr[`PABITS-1:12];
+   // uty: test
+//assign same_page   = push_paddr[`PABITS-1:12] == cur_paddr[`PABITS-1:12];
+assign same_page   = push_paddr[`PABITS-1-LINE_LEN:12] == cur_paddr[`PABITS-1:12];
 assign same_line   = cur_paddr[`PABITS-1:LINE_LEN] == his_paddr;
 assign cur_stride  = cur_paddr[`PABITS-1:LINE_LEN] -  his_paddr;
 assign real_stride = (  &cur_stride[`PABITS-1-LINE_LEN:STRIDE_LEN] ||
