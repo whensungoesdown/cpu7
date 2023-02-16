@@ -33,7 +33,7 @@ THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 `define SLV_MUX_5
 `define SLV_MUX_NUM  5
-`include "config.h"
+`include "../../chip/soc_demo/sim/config.h"
 module axi_slave_mux(
 spi_boot,
 axi_s_aclk,

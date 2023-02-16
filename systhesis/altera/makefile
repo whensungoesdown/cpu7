@@ -41,6 +41,23 @@ SOURCE_FILES =  ../../IP/myCPU/alu.v \
                 ../../IP/myCPU/swrvr_clib.v \
                 ../../IP/myCPU/swrvr_dlib.v \
                 ../../IP/myCPU/tlb_defines.vh \
+		../../chip/soc_demo/sim/config.vh \
+		../../IP/AXI_DELAY_RAND/soc_axi_delay_rand.v \
+		../../IP/AMBA/axi2apb.v \
+		../../IP/AMBA/axi_mux.v \
+		../../IP/APB_DEV/apb_dev_top.v \
+		../../IP/APB_DEV/apb_mux2.v \
+		../../IP/AXI_SRAM_BRIDGE/soc_axi_sram_bridge.v \
+		../../IP/APB_DEV/URT/uart_sync_flops.v \
+		../../IP/APB_DEV/URT/uart_tfifo.v \
+		../../IP/APB_DEV/URT/uart_rfifo.v \
+		../../IP/APB_DEV/URT/uart_receiver.v \
+		../../IP/APB_DEV/URT/uart_transmitter.v \
+		../../IP/APB_DEV/URT/raminfr.v \
+		../../IP/APB_DEV/URT/uart_defines.h \
+		../../IP/APB_DEV/URT/uart_regs.v \
+		../../IP/APB_DEV/URT/uart_top.v \
+		../../IP/CONFREG/confreg.v \
 		../../chip/soc_demo/sim/soc_top.v
 
 
